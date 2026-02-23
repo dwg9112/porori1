@@ -16,16 +16,18 @@
 
     /* 왼쪽 THIS: 2배 */
     #left{
-      position: absolute;
-      left: 16px;
-      bottom: 16px;
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
 
-      height: 110px;
-      width: auto;
+  height: 110px;
+  width: auto;
 
-      transform-origin: left bottom;
-      transform: scale(2);
-    }
+  transform-origin: left bottom;
+  transform: scale(2);
+
+  z-index: 1; /* 추가 */
+}
 
     /* 중앙 OW 게이지: 3배 */
     #center{
@@ -41,20 +43,17 @@
     }
 
     /* ===== MENTAL 게이지(THIS 위에) ===== */
-    #mentalWrap{
-      position:absolute;
+   #mentalWrap{
+  position:absolute;
+  left: 16px;
+  bottom: 16px;
 
-      /* THIS 기준 위치 */
-      left: 16px;
-      bottom: 16px;
+  transform-origin: left bottom;
+  transform: translate(0px, 125px) scale(2);
 
-      /* THIS가 scale(2)라 같이 2배로 맞춤
-         translate의 Y값을 조절해서 'THIS 위'로 정확히 올리면 됨 */
-      transform-origin: left bottom;
-      transform: translate(0px, 125px) scale(2);
-
-      pointer-events:none;
-    }
+  pointer-events:none;
+  z-index: 5; /* ⭐ THIS보다 위로 올림 (핵심) */
+}
 
     #mentalLabel{
       font-family: Arial, sans-serif;
@@ -181,3 +180,4 @@
   </script>
 </body>
 </html>
+
