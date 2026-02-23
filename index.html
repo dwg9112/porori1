@@ -1,107 +1,169 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>PORORI DELIVERY HUD</title>
+<title>Porori Mental HUD</title>
 
 <style>
-body{
-  margin:0;
-  overflow:hidden;
-  font-family:Arial, sans-serif;
-  color:#ffff00; /* 네온 노랑 */
-  text-shadow:0 0 8px #ffff00, 0 0 20px #ffea00;
-  font-weight:bold;
+body {
+  margin: 0;
+  background: transparent;
+  font-family: Arial, sans-serif;
 }
 
-.hud-box{
-  position:absolute;
-  border:3px solid #ffff00;
-  padding:18px;
-  border-radius:16px;
-  background:rgba(0,0,0,0.5);
-  box-shadow:0 0 15px #ffff00;
+/* 전체 HUD 박스 */
+#hud {
+  width: 420px;
 }
 
-/* 플레이어 정보 */
-#player{
-  top:30px;
-  left:30px;
-  width:380px;
-  font-size:28px;
+/* 이름 + 로고 */
+#name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 32px;
+  font-weight: bold;
+  color: #ffff00; /* 네온 노랑 */
+  margin-bottom: 10px;
 }
 
-/* 속도 */
-#speed{
-  bottom:60px;
-  left:60px;
-  font-size:90px;
+#logo {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
 }
 
-/* 퀘스트 */
-#quest{
-  bottom:60px;
-  right:60px;
-  width:380px;
-  font-size:24px;
+/* 멘탈 바 컨테이너 */
+#mental-container {
+  width: 400px;
+  height: 30px;
+  border: 2px solid #ffffff;
+  background: #111;
+  margin-bottom: 5px;
 }
 
-.hp-bar{
-  width:100%;
-  height:26px;
-  background:#222;
-  border-radius:12px;
-  overflow:hidden;
-  margin-top:8px;
+/* 실제 게이지 */
+#mental-bar {
+  height: 100%;
+  width: 100%;
+  background: #00ff00;
+  transition: width 0.1s linear, background 0.3s;
 }
 
-.hp-fill{
-  height:100%;
-  width:100%;
-  background:red; /* 체력 빨강 */
-  box-shadow:0 0 15px red;
-  transition:width 0.5s;
+/* 퍼센트 텍스트 */
+#mental-text {
+  color: #ffff00;
+  font-size: 26px;
+  font-weight: bold;
+  margin-bottom: 8px;
 }
+
+/* 버튼 */
+button {
+  font-size: 18px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+/* 2초 깜빡임 */
+@keyframes blinkSlow {
+  0% { opacity: 1; }
+  50% { opacity: 0.2; }
+  100% { opacity: 1; }
+}
+
+.blink-slow {
+  animation: blinkSlow 2s infinite;
+}
+
+/* 1초 깜빡임 */
+@keyframes blinkFast {
+  0% { opacity: 1; }
+  50% { opacity: 0.2; }
+  100% { opacity: 1; }
+}
+
+.blink-fast {
+  animation: blinkFast 1s infinite;
+}
+
 </style>
 </head>
 
 <body>
 
-<div id="player" class="hud-box">
-  <div style="font-size:33px;">🐿 포로리왓썰 Lv.7</div>
-  <div style="margin-top:10px;">MENTAL</div>
-  <div class="hp-bar">
-    <div id="hpFill" class="hp-fill"></div>
-  </div>
-  <div style="margin-top:10px; font-size:24px;">
-    GOLD: <span id="gold">15200</span>
-  </div>
-</div>
+<div id="hud">
 
-<div id="speed" class="hud-box">
-  <span id="speedValue">0</span> km/h
-</div>
+  <div id="name">
+    <img src="porori.png" id="logo">
+    포로리왓썰
+  </div>
 
-<div id="quest" class="hud-box">
-  <div style="font-size:26px;">PICKUP <span id="pickupCount">3</span>/3</div>
-  <ul style="margin-top:10px;">
-    <li>치킨집</li>
-    <li>마라탕</li>
-    <li>카페</li>
-  </ul>
+  <div id="mental-container">
+    <div id="mental-bar"></div>
+  </div>
+
+  <div id="mental-text">100%</div>
+
+  <button onclick="recoverMental()">멘탈 회복 +10%</button>
+
 </div>
 
 <script>
+let mental = 100;
 
-// GPS 속도
-if (navigator.geolocation) {
-  navigator.geolocation.watchPosition(position => {
-    let speed = position.coords.speed;
-    if(speed == null) speed = 0;
-    document.getElementById("speedValue").innerText = (speed*3.6).toFixed(0);
-  });
+/* 1분당 0.5% 감소 */
+const decreasePerMinute = 0.5;
+const decreasePerSecond = decreasePerMinute / 60;
+const decreasePerTick = decreasePerSecond / 10; // 0.1초 단위
+
+const mentalBar = document.getElementById("mental-bar");
+const mentalText = document.getElementById("mental-text");
+
+function updateMental() {
+  mental -= decreasePerTick;
+  if (mental < 0) mental = 0;
+
+  updateUI();
+
+  if (mental <= 0) {
+    clearInterval(loop);
+    console.log("멘탈 붕괴 💀");
+  }
 }
 
+function updateUI() {
+  mentalBar.style.width = mental + "%";
+  mentalText.innerText = mental.toFixed(2) + "%";
+
+  mentalBar.classList.remove("blink-slow", "blink-fast");
+
+  if (mental > 80) {
+    mentalBar.style.background = "#00ff00";      // 초록
+  } 
+  else if (mental > 60) {
+    mentalBar.style.background = "#66ff00";      // 연두
+  } 
+  else if (mental > 40) {
+    mentalBar.style.background = "#ffff00";      // 노랑
+  } 
+  else if (mental > 20) {
+    mentalBar.style.background = "#ff9900";      // 주황
+    mentalBar.classList.add("blink-slow");       // 2초 깜빡임
+  } 
+  else {
+    mentalBar.style.background = "#ff0000";      // 빨강
+    mentalBar.classList.add("blink-fast");       // 1초 깜빡임
+  }
+}
+
+function recoverMental() {
+  mental += 10;
+  if (mental > 100) mental = 100;
+  updateUI();
+}
+
+const loop = setInterval(updateMental, 100);
 </script>
 
 </body>
