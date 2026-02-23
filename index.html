@@ -205,19 +205,21 @@ mentalContainer.addEventListener("click", function() {
   }
 });
 
-/* ===== 초미니멀 도로 지도 ===== */
+/* ===== 초단순 도로 지도 ===== */
 
 const map = L.map('map', {
   zoomControl: false,
   attributionControl: false
 }).setView([37.5665, 126.9780], 17);
 
-/* 도로 선만 강조된 다크 스타일 */
+/* 🔥 글씨 제거된 다크 지도 */
 L.tileLayer(
-  'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png',
-  { maxZoom: 20 }
+  'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png',
+  {
+    subdomains: 'abcd',
+    maxZoom: 19
+  }
 ).addTo(map);
-
 let marker;
 
 if (navigator.geolocation) {
@@ -254,3 +256,4 @@ if (navigator.geolocation) {
 
 </body>
 </html>
+
