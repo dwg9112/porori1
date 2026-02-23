@@ -5,73 +5,67 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>OW Widget</title>
   <style>
-    /* 배경 투명 */
     html, body { margin: 0; padding: 0; background: transparent; overflow: hidden; }
 
-    /* 위젯 전체(하단 고정) */
     #widget {
       position: fixed;
       left: 0; right: 0; bottom: 0;
-      height: 180px; /* 필요하면 조절 */
-      pointer-events: none; /* 클릭 막기(OBS에서 편함) */
+      height: 180px;
+      pointer-events: none;
     }
 
-    /* 왼쪽 THIS */
     #left {
       position: absolute;
       left: 16px;
       bottom: 16px;
-      height: 110px;   /* 필요시 조절 */
+      height: 110px;
       width: auto;
-      image-rendering: auto;
     }
 
-    /* 중앙 게이지 */
     #center {
       position: absolute;
       left: 50%;
       transform: translateX(-50%);
       bottom: 16px;
-      height: 110px;   /* 필요시 조절 */
+      height: 110px;
       width: auto;
-      image-rendering: auto;
     }
   </style>
 </head>
 <body>
   <div id="widget">
-    <img id="left" src="assets/THIS.png" alt="THIS" />
-    <img id="center" src="assets/ow_thick_000.png" alt="Gauge" />
+    <!-- ✅ 레포 최상단에 있으니 경로에서 assets/ 제거 -->
+    <img id="left" src="./THIS.png" alt="THIS" />
+    <img id="center" src="./ow_thick_000.png" alt="Gauge" />
   </div>
 
   <script>
-    // 설정
     const INTERVAL_MS = 30_000; // 30초
     const MIN = 0;
     const MAX = 100;
 
     const pad3 = (n) => String(n).padStart(3, "0");
-    const gaugePath = (n) => `assets/ow_thick_${pad3(n)}.png`;
+
+    // ✅ 레포 최상단 파일명 기준
+    const gaugePath = (n) => `./ow_thick_${pad3(n)}.png`;
 
     const centerImg = document.getElementById("center");
 
     // 프리로드(깜빡임 방지)
-    const preload = [];
     for (let i = MIN; i <= MAX; i++) {
       const im = new Image();
       im.src = gaugePath(i);
-      preload.push(im);
     }
 
-    // 30초마다 1칸씩 증가 (100 넘어가면 0으로)
     let idx = MIN;
 
     function updateGauge() {
-      centerImg.src = gaugePath(idx);
+      // 캐시로 안 바뀌는 경우 방지용 쿼리스트링
+      centerImg.src = gaugePath(idx) + `?v=${Date.now()}`;
       idx = (idx >= MAX) ? MIN : (idx + 1);
     }
 
-    updateGauge(); // 시작 시 한 번 표시
+    updateGauge();
     setInterval(updateGauge, INTERVAL_MS);
   </script>
 </body>
