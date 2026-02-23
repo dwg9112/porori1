@@ -13,7 +13,15 @@ body {
   font-family: 'BMDOHYEON', sans-serif;
 }
 
-/* ===== HUD ===== */
+/* 네온 박스 */
+.neon-box {
+  border: 2px solid #00ff00;
+  box-shadow: 0 0 8px currentColor, 0 0 16px currentColor;
+  padding: 12px;
+  color: #00ff00;
+  transition: 0.3s;
+}
+
 #hud {
   position: absolute;
   top: 20px;
@@ -21,7 +29,6 @@ body {
   width: 420px;
 }
 
-/* ===== 네비 ===== */
 #nav-box {
   position: absolute;
   bottom: 20px;
@@ -29,21 +36,11 @@ body {
   width: 300px;
 }
 
-/* 네온 박스 */
-.neon-box {
-  border: 2px solid #ffff00;
-  box-shadow: 0 0 8px #ffff00, 0 0 16px #ffff00;
-  padding: 12px;
-}
-
-/* 제목 */
 #name {
   display: flex;
   align-items: center;
   gap: 10px;
   font-size: 26px;
-  color: #ffff00;
-  text-shadow: 0 0 5px #ffff00;
   margin-bottom: 12px;
 }
 
@@ -51,7 +48,6 @@ body {
   width: 36px;
 }
 
-/* 멘탈 바 */
 #mental-container {
   width: 100%;
   height: 24px;
@@ -67,18 +63,16 @@ body {
 }
 
 #mental-text {
-  color: #ffff00;
   font-size: 20px;
-  text-shadow: 0 0 5px #ffff00;
 }
 
-/* 지도 */
 #map {
   width: 100%;
   height: 240px;
+  background: #000;
 }
 
-/* 2초 깜빡임 */
+/* 깜빡임 */
 @keyframes blinkSlow {
   0% { opacity: 1; }
   50% { opacity: 0.2; }
@@ -86,7 +80,6 @@ body {
 }
 .blink-slow { animation: blinkSlow 2s infinite; }
 
-/* 1초 깜빡임 */
 @keyframes blinkFast {
   0% { opacity: 1; }
   50% { opacity: 0.2; }
@@ -94,15 +87,20 @@ body {
 }
 .blink-fast { animation: blinkFast 1s infinite; }
 
+.arrow {
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 18px solid #00ff00;
+}
 </style>
 </head>
 
 <body>
 
-<!-- ===== 왼쪽 상단 HUD ===== -->
 <div id="hud">
-  <div class="neon-box">
-
+  <div class="neon-box" id="hud-box">
     <div id="name">
       <img src="porori.png" id="logo">
       포로리왓썰의 MENTAL
@@ -113,25 +111,19 @@ body {
     </div>
 
     <div id="mental-text">100.0%</div>
-
   </div>
 </div>
 
-<!-- ===== 왼쪽 하단 네비 ===== -->
 <div id="nav-box">
-  <div class="neon-box">
+  <div class="neon-box" id="nav-neon">
     <div id="map"></div>
   </div>
 </div>
 
-<!-- Leaflet -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-/* ===================
-   멘탈 시스템
-=================== */
 let mental = 100;
 
 const decreasePerMinute = 0.5;
@@ -140,7 +132,30 @@ const decreasePerTick = decreasePerSecond / 10;
 
 const mentalBar = document.getElementById("mental-bar");
 const mentalText = document.getElementById("mental-text");
+const hudBox = document.getElementById("hud-box");
+const navBox = document.getElementById("nav-neon");
+const mentalContainer = document.getElementById("mental-container");
 
+let arrowIcon;
+let currentColor = "#00ff00";
+
+/* UI 색 연동 */
+function setUIColor(color) {
+  currentColor = color;
+
+  mentalBar.style.background = color;
+  mentalText.style.color = color;
+  hudBox.style.borderColor = color;
+  navBox.style.borderColor = color;
+  hudBox.style.color = color;
+  navBox.style.color = color;
+  hudBox.style.boxShadow = `0 0 8px ${color}, 0 0 16px ${color}`;
+  navBox.style.boxShadow = `0 0 8px ${color}, 0 0 16px ${color}`;
+
+  if (arrowIcon) arrowIcon.style.borderBottomColor = color;
+}
+
+/* 멘탈 감소 */
 function updateMental() {
   mental -= decreasePerTick;
   if (mental < 0) mental = 0;
@@ -150,42 +165,57 @@ function updateMental() {
 function updateUI() {
   mentalBar.style.width = mental + "%";
   mentalText.innerText = mental.toFixed(1) + "%";
-
   mentalBar.classList.remove("blink-slow", "blink-fast");
 
-  if (mental > 80) {
-    mentalBar.style.background = "#00ff00";   // 초록
-  }
-  else if (mental > 60) {
-    mentalBar.style.background = "#66ff00";   // 연두
-  }
-  else if (mental > 40) {
-    mentalBar.style.background = "#ffff00";   // 노랑
-  }
+  if (mental > 80) setUIColor("#00ff00");
+  else if (mental > 60) setUIColor("#66ff00");
+  else if (mental > 40) setUIColor("#ffff00");
   else if (mental > 20) {
-    mentalBar.style.background = "#ff9900";   // 주황
-    mentalBar.classList.add("blink-slow");    // 2초 깜빡임
+    setUIColor("#ff9900");
+    mentalBar.classList.add("blink-slow");
   }
   else {
-    mentalBar.style.background = "#ff0000";   // 빨강
-    mentalBar.classList.add("blink-fast");    // 1초 깜빡임
+    setUIColor("#ff0000");
+    mentalBar.classList.add("blink-fast");
   }
 }
 
 setInterval(updateMental, 100);
 
-/* ===================
-   심플 도로 지도
-=================== */
+/* 🔥 1초 안에 더블 터치 회복 */
+let tapCount = 0;
+let lastTapTime = 0;
+
+mentalContainer.addEventListener("click", function() {
+  const now = new Date().getTime();
+
+  if (now - lastTapTime < 1000) {
+    tapCount++;
+  } else {
+    tapCount = 1;
+  }
+
+  lastTapTime = now;
+
+  if (tapCount >= 2) {
+    mental += 10;
+    if (mental > 100) mental = 100;
+    updateUI();
+    tapCount = 0;
+  }
+});
+
+/* ===== 초미니멀 도로 지도 ===== */
 
 const map = L.map('map', {
   zoomControl: false,
   attributionControl: false
 }).setView([37.5665, 126.9780], 17);
 
+/* 도로 선만 강조된 다크 스타일 */
 L.tileLayer(
-  'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-  { maxZoom: 19 }
+  'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png',
+  { maxZoom: 20 }
 ).addTo(map);
 
 let marker;
@@ -200,19 +230,22 @@ if (navigator.geolocation) {
     map.setView([lat, lon]);
 
     if (!marker) {
-      marker = L.circleMarker([lat, lon], {
-        radius: 6,
-        color: "#ffff00",
-        fillColor: "#ffff00",
-        fillOpacity: 1
-      }).addTo(map);
+      arrowIcon = document.createElement("div");
+      arrowIcon.className = "arrow";
+
+      const icon = L.divIcon({
+        html: arrowIcon,
+        className: '',
+        iconSize: [20,20]
+      });
+
+      marker = L.marker([lat, lon], { icon: icon }).addTo(map);
     } else {
       marker.setLatLng([lat, lon]);
     }
 
     if (heading !== null) {
-      document.getElementById("map").style.transform =
-        "rotate(" + (-heading) + "deg)";
+      arrowIcon.style.transform = `rotate(${heading}deg)`;
     }
 
   }, null, { enableHighAccuracy: true });
