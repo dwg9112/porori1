@@ -3,53 +3,56 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>OW Widget</title>
+  <title>Porori HUD</title>
   <style>
     html, body { margin: 0; padding: 0; background: transparent; overflow: hidden; }
-
     #widget{
       position: fixed;
       left: 0; right: 0; bottom: 0;
-      height: 600px;
+      height: 700px;
       pointer-events: none;
     }
 
-    /* ===== 왼쪽 THIS 영역 (2배) ===== */
+    /* ===== 왼쪽 THIS (2배) ===== */
     #leftWrap{
       position: absolute;
       left: 16px;
       bottom: 16px;
-
       transform-origin: left bottom;
       transform: scale(2);
-
       z-index: 10;
       pointer-events: none;
     }
+    #leftImg{ height: 110px; width: auto; display: block; }
 
-    #leftImg{
-      height: 110px;
-      width: auto;
-      display: block;
-    }
-
-    /* ===== 중앙 OW 궁 게이지 (75% = 2.25배) ===== */
+    /* ===== 중앙 OW 게이지 (75% 크기 = scale 2.25) ===== */
     #center{
       position: absolute;
       left: 50%;
       bottom: 16px;
-
       height: 110px;
       width: auto;
-
       transform-origin: center bottom;
       transform: translateX(-50%) scale(2.25);
-
       z-index: 5;
       pointer-events: none;
     }
 
-    /* ===== MENTAL 게이지 ===== */
+    /* ===== 궁 ON GIF (중앙 게이지 위에) ===== */
+    #ultOn{
+      position: absolute;
+      left: 50%;
+      bottom: 16px;
+      transform: translateX(-50%);
+      height: 240px;
+      width: auto;
+      display: none;
+      z-index: 50;
+      pointer-events: none;
+      filter: drop-shadow(0 10px 25px rgba(0,0,0,.35));
+    }
+
+    /* ===== MENTAL 게이지 (THIS 위) ===== */
     #mentalWrap{
       position: absolute;
       left: 120px;
@@ -57,7 +60,6 @@
       z-index: 999;
       pointer-events: none;
     }
-
     #mentalLabel{
       font-family: Arial, sans-serif;
       font-weight: 900;
@@ -69,8 +71,7 @@
       user-select: none;
       line-height: 1;
     }
-
-    /* 바 크기/위치 조정 */
+    /* 바: 가로 1/2에서 우측으로 5/4 늘림 => 0.625 + 좌측 2칸 + 아래 1칸 */
     #mentalBar{
       display:flex;
       gap: 3px;
@@ -79,11 +80,9 @@
       background: rgba(0,0,0,.30);
       backdrop-filter: blur(2px);
       box-shadow: 0 6px 18px rgba(0,0,0,.25);
-
       transform-origin: left top;
       transform: translate(-26px, 6px) scaleX(0.625);
     }
-
     .mentalSeg{
       width: 10px;
       height: 14px;
@@ -91,129 +90,97 @@
       background: #20d070;
       box-shadow: inset 0 0 0 1px rgba(255,255,255,.25);
     }
-
     .mentalSeg.off{
       background: #f2f2f2;
       box-shadow: inset 0 0 0 1px rgba(0,0,0,.15);
     }
 
-    /* =========================================
-       🔥 우측하단 네비게이션 미니맵 (150% 확대)
-       ========================================= */
+    /* =======================================================
+       우측하단: 사이버펑크 3D 네비 미니맵 (150% 크기)
+       - Canvas로 3D 그리드/도로/네온 포인트 이동
+    ======================================================= */
     #navWrap{
       position: absolute;
       right: 18px;
       bottom: 18px;
-
-      width: 220px;
-      height: 220px;
+      width: 260px;
+      height: 260px;
 
       transform-origin: right bottom;
-      transform: scale(1.5); /* ✅ 150% */
+      transform: scale(1.5); /* 150% */
 
-      border-radius: 26px;
-      background: rgba(8, 10, 14, 0.50);
-      box-shadow: 0 10px 26px rgba(0,0,0,.35);
-      backdrop-filter: blur(3px);
-
+      border-radius: 28px;
+      overflow: hidden;
       z-index: 30;
       pointer-events: none;
-      overflow: hidden;
-    }
 
+      background: radial-gradient(circle at 50% 25%, rgba(0,255,255,.18), rgba(0,0,0,.55) 70%),
+                  linear-gradient(180deg, rgba(10,15,30,.65), rgba(0,0,0,.75));
+      box-shadow: 0 12px 30px rgba(0,0,0,.45);
+      backdrop-filter: blur(3px);
+    }
     #navWrap::before{
       content:"";
       position:absolute;
       inset:0;
-      border-radius: 26px;
+      border-radius: 28px;
       box-shadow:
-        inset 0 0 0 2px rgba(255,255,255,.16),
-        inset 0 0 0 7px rgba(0,0,0,.18);
+        inset 0 0 0 2px rgba(0,255,255,.22),
+        inset 0 0 0 8px rgba(255,0,200,.08),
+        inset 0 0 30px rgba(0,255,255,.08);
       pointer-events:none;
-    }
-
-    /* 지도 영역 */
-    #navMap{
-      position:absolute;
-      inset: 14px;
-      border-radius: 18px;
-      background:
-        repeating-linear-gradient(
-          to bottom,
-          rgba(255,255,255,.06) 0px,
-          rgba(255,255,255,.06) 2px,
-          transparent 2px,
-          transparent 28px
-        );
-      overflow:hidden;
-    }
-
-    /* 길(흐르는 느낌) */
-    #road{
-      position:absolute;
-      left:50%;
-      top:-200%;
-      width: 44px;
-      height: 400%;
-      transform: translateX(-50%);
-      background: linear-gradient(
-        to bottom,
-        rgba(255,255,255,.25) 0%,
-        rgba(255,255,255,.12) 40%,
-        rgba(255,255,255,.25) 100%
-      );
-      border-radius: 24px;
-      opacity: .9;
-    }
-
-    /* 내 위치 삼각형 */
-    #navPlayer{
-      position:absolute;
-      left:50%;
-      bottom: 26px;
-      width:0;
-      height:0;
-      transform: translateX(-50%);
-      border-left: 10px solid transparent;
-      border-right: 10px solid transparent;
-      border-bottom: 18px solid rgba(255,255,255,.95);
-      filter: drop-shadow(0 3px 6px rgba(0,0,0,.55));
       z-index: 3;
     }
-
-    /* 다음 방향 화살표 */
-    #nextTurn{
+    #navHUD{
       position:absolute;
-      right: 14px;
+      left: 12px;
       top: 10px;
+      z-index: 4;
+      color: rgba(255,255,255,.9);
+      text-shadow: 0 2px 10px rgba(0,0,0,.7);
       font-family: Arial, sans-serif;
-      font-weight: 900;
-      font-size: 14px;
-      color: #7CFFB2;
-      text-shadow: 0 2px 6px rgba(0,0,0,.7);
-      letter-spacing: .5px;
+      user-select: none;
     }
-
-    #nextDist{
-      position:absolute;
-      right: 14px;
-      top: 28px;
-      font-family: Arial, sans-serif;
-      font-weight: 800;
+    #navHUD .title{
+      font-weight: 900;
+      letter-spacing: 1px;
       font-size: 12px;
-      color: rgba(255,255,255,.85);
-      text-shadow: 0 2px 6px rgba(0,0,0,.7);
+      color: rgba(0,255,255,.95);
+      text-shadow: 0 0 10px rgba(0,255,255,.35), 0 2px 10px rgba(0,0,0,.6);
+    }
+    #navHUD .sub{
+      margin-top: 4px;
+      font-weight: 800;
+      font-size: 11px;
+      letter-spacing: .6px;
+      opacity: .9;
+    }
+    #navTurn{
+      position:absolute;
+      right: 12px;
+      top: 10px;
+      z-index: 4;
+      font-weight: 900;
+      font-size: 12px;
+      letter-spacing: .8px;
+      color: rgba(255,0,200,.95);
+      text-shadow: 0 0 12px rgba(255,0,200,.25), 0 2px 10px rgba(0,0,0,.65);
+      user-select:none;
+    }
+    #navCanvas{
+      position:absolute;
+      inset:0;
+      z-index: 2;
     }
   </style>
 </head>
 
 <body>
   <div id="widget">
-    <!-- 왼쪽 THIS -->
+    <!-- 왼쪽 THIS + MENTAL -->
     <div id="leftWrap">
       <img id="leftImg" src="./THIS.png" alt="THIS" />
-
-      <div id="mentalWrap">
+      <div id="mentalWrap" aria-label="MENTAL gauge">
         <div id="mentalLabel">MENTAL</div>
         <div id="mentalBar"></div>
       </div>
@@ -221,38 +188,122 @@
 
     <!-- 중앙 궁 게이지 -->
     <img id="center" src="./ow_thick_000.png" alt="Gauge" />
+    <!-- 궁 ON GIF -->
+    <img id="ultOn" src="./On.gif" alt="ULT ON" />
 
-    <!-- 🔥 네비게이션 미니맵 -->
-    <div id="navWrap">
-      <div id="navMap">
-        <div id="road"></div>
-        <div id="navPlayer"></div>
+    <!-- 우측하단 3D 사이버 네비 -->
+    <div id="navWrap" aria-label="Cyber minimap">
+      <canvas id="navCanvas" width="260" height="260"></canvas>
+      <div id="navHUD">
+        <div class="title">CYBER NAV</div>
+        <div class="sub" id="navSpeed">SPD 0.0</div>
       </div>
-      <div id="nextTurn">TURN →</div>
-      <div id="nextDist">120 m</div>
+      <div id="navTurn" id="turnTxt">NEXT ▷</div>
     </div>
   </div>
 
   <script>
     /* ===============================
-       OW 궁 게이지
+       OW 궁 게이지 + On.gif 스케줄 + 리셋 루프
        =============================== */
-    const OW_INTERVAL_MS = 30000;
+    const OW_INTERVAL_MS = 30_000;       // 30초마다 1칸
+    const OW_MIN = 0;
     const OW_MAX = 100;
-    let owIdx = 0;
+
+    const ON_DELAY_MS = 20_000;          // 100% 도달 후 20초 뒤 On.gif 표시
+    const ON_DURATION_MS = 10 * 60 * 1000; // On.gif 10분 재생
+    // On이 끝나면 궁 0%로 리셋하고 다시 OW 루프 재개
+
+    const pad3 = (n) => String(n).padStart(3, "0");
+    const owPath = (n) => `./ow_thick_${pad3(n)}.png`;
 
     const centerImg = document.getElementById("center");
-    const pad3 = n => String(n).padStart(3,"0");
+    const ultOnImg = document.getElementById("ultOn");
 
-    function updateOW(){
-      centerImg.src = `./ow_thick_${pad3(owIdx)}.png?v=${Date.now()}`;
-      owIdx = (owIdx >= OW_MAX) ? 0 : owIdx + 1;
+    // preload (깜빡임 방지)
+    for (let i = OW_MIN; i <= OW_MAX; i++) {
+      const im = new Image();
+      im.src = owPath(i);
     }
-    updateOW();
-    setInterval(updateOW, OW_INTERVAL_MS);
+
+    let owValue = 0;
+
+    // 상태머신
+    // "charging" : 0->100 증가 중
+    // "waitingOn": 100 도달 후 20초 대기
+    // "onPlaying": On.gif 10분 재생
+    let state = "charging";
+    let owTimer = null;
+    let onDelayTimer = null;
+    let onDurationTimer = null;
+
+    function setOW(n){
+      owValue = Math.max(OW_MIN, Math.min(OW_MAX, n));
+      centerImg.src = owPath(owValue) + `?v=${Date.now()}`; // 캐시 방지
+    }
+
+    function hideOn(){
+      ultOnImg.style.display = "none";
+    }
+    function showOn(){
+      // GIF가 재시작되게 src를 한 번 리셋해줌
+      ultOnImg.style.display = "block";
+      const src = ultOnImg.getAttribute("src") || "./On.gif";
+      ultOnImg.src = src.split("?")[0] + `?v=${Date.now()}`;
+    }
+
+    function clearTimers(){
+      if (owTimer) { clearInterval(owTimer); owTimer = null; }
+      if (onDelayTimer) { clearTimeout(onDelayTimer); onDelayTimer = null; }
+      if (onDurationTimer) { clearTimeout(onDurationTimer); onDurationTimer = null; }
+    }
+
+    function startCharging(){
+      state = "charging";
+      hideOn();
+      // 0%부터 시작
+      setOW(0);
+
+      if (owTimer) clearInterval(owTimer);
+      owTimer = setInterval(() => {
+        if (state !== "charging") return;
+
+        if (owValue < OW_MAX) {
+          setOW(owValue + 1);
+        }
+
+        if (owValue >= OW_MAX) {
+          // 100% 도달
+          state = "waitingOn";
+          // 20초 뒤 On 표시
+          if (onDelayTimer) clearTimeout(onDelayTimer);
+          onDelayTimer = setTimeout(() => {
+            if (state !== "waitingOn") return;
+            state = "onPlaying";
+            showOn();
+
+            // 10분 뒤 종료 -> 다시 0부터 루프
+            if (onDurationTimer) clearTimeout(onDurationTimer);
+            onDurationTimer = setTimeout(() => {
+              // On 종료
+              hideOn();
+              // 다시 루프 시작
+              startCharging();
+            }, ON_DURATION_MS);
+
+          }, ON_DELAY_MS);
+        }
+      }, OW_INTERVAL_MS);
+    }
+
+    // 시작
+    startCharging();
 
     /* ===============================
-       MENTAL 게이지
+       MENTAL 게이지 (색 구간)
+       - 20칸 시작
+       - 10분마다 1칸 감소
+       - 0이면 10분 유지 후 리셋
        =============================== */
     const MENTAL_TOTAL = 20;
     const MENTAL_INTERVAL_MS = 10 * 60 * 1000;
@@ -261,33 +312,33 @@
     const mentalBar = document.getElementById("mentalBar");
     const mentalSegs = [];
 
-    for (let i=0;i<MENTAL_TOTAL;i++){
+    for (let i = 0; i < MENTAL_TOTAL; i++) {
       const seg = document.createElement("div");
       seg.className = "mentalSeg";
       mentalBar.appendChild(seg);
       mentalSegs.push(seg);
     }
 
-    function getMentalColor(n){
-      if (n >= 16) return "#20d070";
-      if (n >= 12) return "#9BEA4A";
-      if (n >= 8) return "#D9B400";
-      if (n >= 4) return "#FF8A1E";
-      return "#FF3B30";
+    function getMentalColor(onCount){
+      if (onCount >= 16) return "#20d070"; // 녹색
+      if (onCount >= 12) return "#9BEA4A"; // 연두
+      if (onCount >= 8)  return "#D9B400"; // 짙은 노랑
+      if (onCount >= 4)  return "#FF8A1E"; // 주황
+      return "#FF3B30";                   // 빨강
     }
 
     function renderMental(){
-      const color = getMentalColor(mentalOn);
-      for (let i=0;i<MENTAL_TOTAL;i++){
-        const on = i < mentalOn;
-        mentalSegs[i].classList.toggle("off", !on);
-        mentalSegs[i].style.backgroundColor = on ? color : "";
+      const c = getMentalColor(mentalOn);
+      for (let i = 0; i < MENTAL_TOTAL; i++){
+        const isOn = i < mentalOn;
+        mentalSegs[i].classList.toggle("off", !isOn);
+        mentalSegs[i].style.backgroundColor = isOn ? c : "";
       }
     }
 
     function tickMental(){
-      if (mentalOn > 0) mentalOn--;
-      else mentalOn = MENTAL_TOTAL;
+      if (mentalOn > 0) mentalOn -= 1;
+      else mentalOn = MENTAL_TOTAL; // 0 상태 10분 유지 후 리셋
       renderMental();
     }
 
@@ -295,17 +346,171 @@
     setInterval(tickMental, MENTAL_INTERVAL_MS);
 
     /* ===============================
-       🔥 네비 도로 흐름 애니메이션
+       사이버펑크 3D 네비 미니맵(Canvas)
+       - 원근 그리드가 앞으로 흐름
+       - 도로/레인 + 네온 포인트 이동
        =============================== */
-    const road = document.getElementById("road");
-    let roadPos = 0;
+    const canvas = document.getElementById("navCanvas");
+    const ctx = canvas.getContext("2d");
+    const navSpeedEl = document.getElementById("navSpeed");
 
-    function animateRoad(){
-      roadPos += 0.6;
-      road.style.transform = `translate(-50%, ${roadPos}px)`;
-      requestAnimationFrame(animateRoad);
+    const CW = canvas.width;
+    const CH = canvas.height;
+
+    // 가짜 속도/진행
+    let z = 0;
+    let speed = 0.016; // 기본 속도
+    let t0 = performance.now();
+
+    // 네온 포인트(3D 공간에 있는 점들)
+    const blips = Array.from({length: 30}).map(() => ({
+      x: (Math.random()*2 - 1) * 1.2,   // -1.2 ~ 1.2
+      z: Math.random()*1.0 + 0.05,      // 0.05 ~ 1.05
+      lane: Math.random() < 0.5 ? -1 : 1,
+      c: Math.random() < 0.6 ? "cyan" : "magenta"
+    }));
+
+    function proj(x, z){
+      // 간단 원근: z가 작을수록(가까울수록) 크게 보임
+      const f = 1 / (z + 0.12);
+      const px = CW/2 + x * 120 * f;
+      const py = CH*0.78 - 220 * f; // 지평선(위) -> 아래(가까움)
+      return {x: px, y: py, s: f};
     }
-    animateRoad();
+
+    function draw(){
+      const now = performance.now();
+      const dt = Math.min(40, now - t0);
+      t0 = now;
+
+      // 속도 살짝 흔들(역동감)
+      speed = 0.014 + 0.006 * (0.5 + 0.5*Math.sin(now/800));
+      z += speed * dt;
+
+      // 배경
+      ctx.clearRect(0,0,CW,CH);
+
+      // 글로우 배경 레이어
+      const bg = ctx.createRadialGradient(CW/2, CH*0.25, 10, CW/2, CH*0.25, CW*0.9);
+      bg.addColorStop(0, "rgba(0,255,255,0.18)");
+      bg.addColorStop(0.45, "rgba(255,0,200,0.08)");
+      bg.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = bg;
+      ctx.fillRect(0,0,CW,CH);
+
+      // 지평선 글로우
+      ctx.fillStyle = "rgba(0,255,255,0.10)";
+      ctx.fillRect(0, CH*0.22, CW, 2);
+
+      // 3D 그리드 라인(가로)
+      for (let i=0; i<18; i++){
+        const zz = ((i/18) + (z%1)) * 1.2; // 흐름
+        const pL = proj(-1.6, zz);
+        const pR = proj( 1.6, zz);
+        ctx.strokeStyle = `rgba(0,255,255,${0.10 + (1-zz)*0.08})`;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(pL.x, pL.y);
+        ctx.lineTo(pR.x, pR.y);
+        ctx.stroke();
+      }
+
+      // 3D 그리드 라인(세로)
+      for (let j=-8; j<=8; j++){
+        const x = j/8 * 1.4;
+        const pNear = proj(x, 0.08);
+        const pFar  = proj(x, 1.2);
+        ctx.strokeStyle = "rgba(255,0,200,0.08)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(pNear.x, pNear.y);
+        ctx.lineTo(pFar.x, pFar.y);
+        ctx.stroke();
+      }
+
+      // 도로(중앙 레인) - 네온 경계
+      for (const side of [-0.55, 0.55]){
+        ctx.beginPath();
+        for (let k=0; k<30; k++){
+          const zz = (k/30) * 1.2 + 0.08;
+          const wob = 0.08*Math.sin((now/600) + zz*4); // 곡선 느낌
+          const p = proj(side + wob, zz);
+          if (k===0) ctx.moveTo(p.x, p.y);
+          else ctx.lineTo(p.x, p.y);
+        }
+        ctx.strokeStyle = "rgba(0,255,255,0.55)";
+        ctx.lineWidth = 4;
+        ctx.stroke();
+
+        ctx.strokeStyle = "rgba(0,255,255,0.18)";
+        ctx.lineWidth = 10;
+        ctx.stroke();
+      }
+
+      // 중앙 점선(가속감)
+      for (let m=0; m<18; m++){
+        const zz = ((m/18) + (z%1)) * 1.2 + 0.08;
+        const wob = 0.08*Math.sin((now/600) + zz*4);
+        const p1 = proj(0 + wob, zz);
+        const p2 = proj(0 + wob, zz+0.05);
+        ctx.strokeStyle = "rgba(255,255,255,0.18)";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.stroke();
+      }
+
+      // 네온 포인트(블립) 이동
+      for (const b of blips){
+        b.z -= speed * dt * 0.8;
+        if (b.z < 0.06){
+          b.z = 1.2;
+          b.x = (Math.random()*2 - 1) * 1.2;
+          b.c = Math.random() < 0.6 ? "cyan" : "magenta";
+        }
+        const p = proj(b.x, b.z);
+        const r = Math.max(1.5, 5 * p.s);
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, r, 0, Math.PI*2);
+
+        if (b.c === "cyan"){
+          ctx.fillStyle = "rgba(0,255,255,0.85)";
+          ctx.shadowColor = "rgba(0,255,255,0.6)";
+        } else {
+          ctx.fillStyle = "rgba(255,0,200,0.85)";
+          ctx.shadowColor = "rgba(255,0,200,0.5)";
+        }
+        ctx.shadowBlur = 14;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+
+      // 플레이어 아이콘(고정 HUD)
+      const px = CW/2;
+      const py = CH*0.76;
+      ctx.save();
+      ctx.translate(px, py);
+      ctx.fillStyle = "rgba(255,255,255,0.92)";
+      ctx.shadowColor = "rgba(0,0,0,0.6)";
+      ctx.shadowBlur = 12;
+      ctx.beginPath();
+      ctx.moveTo(0, -10);
+      ctx.lineTo(8, 10);
+      ctx.lineTo(-8, 10);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+      ctx.shadowBlur = 0;
+
+      // HUD 텍스트
+      const spdVal = (speed*dt*100).toFixed(1);
+      navSpeedEl.textContent = `SPD ${spdVal}`;
+
+      requestAnimationFrame(draw);
+    }
+    requestAnimationFrame(draw);
   </script>
 </body>
 </html>
