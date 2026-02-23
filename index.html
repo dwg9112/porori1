@@ -33,7 +33,7 @@
       display: block;
     }
 
-    /* ===== 중앙 OW 궁 게이지 (기존 3배 → 75% = 2.25배) ===== */
+    /* ===== 중앙 OW 궁 게이지 (75% = 2.25배) ===== */
     #center{
       position: absolute;
       left: 50%;
@@ -43,7 +43,7 @@
       width: auto;
 
       transform-origin: center bottom;
-      transform: translateX(-50%) scale(2.25); /* ✅ 75% 크기 */
+      transform: translateX(-50%) scale(2.25);
 
       z-index: 5;
       pointer-events: none;
@@ -52,11 +52,8 @@
     /* ===== MENTAL 게이지 (THIS 위) ===== */
     #mentalWrap{
       position: absolute;
-
-      /* 필요시 여기만 미세조정 */
       left: 120px;
       bottom: 62px;
-
       z-index: 999;
       pointer-events: none;
     }
@@ -73,7 +70,8 @@
       line-height: 1;
     }
 
-    /* ✅ 바만: 가로 1/2 + 왼쪽 이동 + 아래 이동 */
+    /* ✅ 바: 가로 1/2에서 우측으로 5/4 늘림 => 0.625
+       + 왼쪽 2칸 이동 + 아래 1칸 이동 */
     #mentalBar{
       display:flex;
       gap: 3px;
@@ -84,14 +82,18 @@
       box-shadow: 0 6px 18px rgba(0,0,0,.25);
 
       transform-origin: left top;
-      transform: translate(-26px, 6px) scaleX(0.5);
+      transform: translate(-26px, 6px) scaleX(0.625);
     }
 
     .mentalSeg{
       width: 10px;
       height: 14px;
       border-radius: 4px;
+
+      /* 기본은 JS에서 색 넣어주지만,
+         혹시 못 넣을 때 대비해서 초록 */
       background: #20d070;
+
       box-shadow: inset 0 0 0 1px rgba(255,255,255,.25);
     }
 
@@ -104,18 +106,15 @@
 
 <body>
   <div id="widget">
-    <!-- 왼쪽 THIS -->
     <div id="leftWrap">
       <img id="leftImg" src="./THIS.png" alt="THIS" />
 
-      <!-- MENTAL -->
       <div id="mentalWrap" aria-label="MENTAL gauge">
         <div id="mentalLabel">MENTAL</div>
         <div id="mentalBar"></div>
       </div>
     </div>
 
-    <!-- 중앙 궁 게이지 -->
     <img id="center" src="./ow_thick_000.png" alt="Gauge" />
   </div>
 
@@ -139,21 +138,24 @@
     }
 
     let owIdx = OW_MIN;
-
     function updateOW() {
       centerImg.src = owPath(owIdx) + `?v=${Date.now()}`;
       owIdx = (owIdx >= OW_MAX) ? OW_MIN : (owIdx + 1);
     }
-
     updateOW();
     setInterval(updateOW, OW_INTERVAL_MS);
-
 
     /* ===============================
        MENTAL 게이지
        - 20칸 시작
        - 10분마다 오른쪽부터 감소
        - 0이면 10분 유지 후 리셋
+       - 구간별 ON 색상 변경:
+         16~20 녹색
+         12~16 연두
+         8~12  짙은 노랑
+         4~8   주황
+         0~4   빨강
        =============================== */
     const MENTAL_TOTAL = 20;
     const MENTAL_INTERVAL_MS = 10 * 60 * 1000;
@@ -163,7 +165,7 @@
     const mentalBar = document.getElementById("mentalBar");
     const mentalSegs = [];
 
-    // 칸 생성
+    // 20칸 생성
     for (let i = 0; i < MENTAL_TOTAL; i++) {
       const seg = document.createElement("div");
       seg.className = "mentalSeg";
@@ -171,18 +173,38 @@
       mentalSegs.push(seg);
     }
 
+    // 남은 칸 수(mentalOn)에 따른 ON 색상
+    function getMentalColor(onCount){
+      if (onCount >= 16) return "#20d070"; // 녹색
+      if (onCount >= 12) return "#9BEA4A"; // 연두
+      if (onCount >= 8)  return "#D9B400"; // 짙은 노랑
+      if (onCount >= 4)  return "#FF8A1E"; // 주황
+      return "#FF3B30";                   // 빨강 (0~3)
+    }
+
     function renderMental() {
+      const onColor = getMentalColor(mentalOn);
+
       for (let i = 0; i < MENTAL_TOTAL; i++) {
         const isOn = i < mentalOn;
+
+        // off 클래스 토글 (흰칸)
         mentalSegs[i].classList.toggle("off", !isOn);
+
+        // on 칸은 구간색, off 칸은 css에서 흰색 처리
+        if (isOn) {
+          mentalSegs[i].style.backgroundColor = onColor;
+        } else {
+          mentalSegs[i].style.backgroundColor = ""; // off는 CSS 적용
+        }
       }
     }
 
     function tickMental() {
       if (mentalOn > 0) {
-        mentalOn -= 1;
+        mentalOn -= 1;          // 10분마다 1칸 감소
       } else {
-        mentalOn = MENTAL_TOTAL; // 10분 유지 후 리셋
+        mentalOn = MENTAL_TOTAL; // 0 상태 10분 유지 후 리셋
       }
       renderMental();
     }
