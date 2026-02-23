@@ -5,23 +5,28 @@
 <title>Porori Mental HUD</title>
 
 <link href="https://cdn.jsdelivr.net/gh/webfontworld/baemin/BMDOHYEON.css" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
 <style>
 body {
   margin: 0;
   background: transparent;
   font-family: 'BMDOHYEON', sans-serif;
+  overflow: hidden;
 }
 
-/* 네온 박스 */
+/* ===== 네온 박스 ===== */
 .neon-box {
   border: 2px solid #00ff00;
-  box-shadow: 0 0 8px currentColor, 0 0 16px currentColor;
+  box-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
   padding: 12px;
   color: #00ff00;
   transition: 0.3s;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(6px);
 }
 
+/* HUD 위치 */
 #hud {
   position: absolute;
   top: 20px;
@@ -48,11 +53,13 @@ body {
   width: 36px;
 }
 
+/* ===== 멘탈 바 ===== */
 #mental-container {
   width: 100%;
   height: 24px;
   background: #111;
   margin-bottom: 6px;
+  cursor: pointer;
 }
 
 #mental-bar {
@@ -66,33 +73,36 @@ body {
   font-size: 20px;
 }
 
+/* ===== 지도 ===== */
 #map {
   width: 100%;
   height: 240px;
-  background: #000;
+  background: transparent;
+  filter: grayscale(100%) contrast(300%) brightness(150%);
+  mix-blend-mode: screen;
 }
 
 /* 깜빡임 */
 @keyframes blinkSlow {
-  0% { opacity: 1; }
+  0%,100% { opacity: 1; }
   50% { opacity: 0.2; }
-  100% { opacity: 1; }
 }
 .blink-slow { animation: blinkSlow 2s infinite; }
 
 @keyframes blinkFast {
-  0% { opacity: 1; }
+  0%,100% { opacity: 1; }
   50% { opacity: 0.2; }
-  100% { opacity: 1; }
 }
 .blink-fast { animation: blinkFast 1s infinite; }
 
+/* 화살표 */
 .arrow {
   width: 0;
   height: 0;
-  border-left: 8px solid transparent;
-  border-right: 8px solid transparent;
-  border-bottom: 18px solid #00ff00;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 22px solid #00ff00;
+  transform-origin: center;
 }
 </style>
 </head>
@@ -120,15 +130,17 @@ body {
   </div>
 </div>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
 let mental = 100;
+let currentColor = "#00ff00";
+let arrowIcon;
+let marker;
 
+/* ===== 감소 설정 ===== */
 const decreasePerMinute = 0.5;
-const decreasePerSecond = decreasePerMinute / 60;
-const decreasePerTick = decreasePerSecond / 10;
+const decreasePerTick = (decreasePerMinute / 60) / 10;
 
 const mentalBar = document.getElementById("mental-bar");
 const mentalText = document.getElementById("mental-text");
@@ -136,36 +148,30 @@ const hudBox = document.getElementById("hud-box");
 const navBox = document.getElementById("nav-neon");
 const mentalContainer = document.getElementById("mental-container");
 
-let arrowIcon;
-let currentColor = "#00ff00";
-
-/* UI 색 연동 */
+/* ===== 색상 연동 ===== */
 function setUIColor(color) {
   currentColor = color;
 
   mentalBar.style.background = color;
   mentalText.style.color = color;
+
   hudBox.style.borderColor = color;
   navBox.style.borderColor = color;
+
   hudBox.style.color = color;
   navBox.style.color = color;
-  hudBox.style.boxShadow = `0 0 8px ${color}, 0 0 16px ${color}`;
-  navBox.style.boxShadow = `0 0 8px ${color}, 0 0 16px ${color}`;
+
+  hudBox.style.boxShadow = `0 0 10px ${color},0 0 20px ${color}`;
+  navBox.style.boxShadow = `0 0 10px ${color},0 0 20px ${color}`;
 
   if (arrowIcon) arrowIcon.style.borderBottomColor = color;
 }
 
-/* 멘탈 감소 */
-function updateMental() {
-  mental -= decreasePerTick;
-  if (mental < 0) mental = 0;
-  updateUI();
-}
-
+/* ===== UI 업데이트 ===== */
 function updateUI() {
   mentalBar.style.width = mental + "%";
   mentalText.innerText = mental.toFixed(1) + "%";
-  mentalBar.classList.remove("blink-slow", "blink-fast");
+  mentalBar.classList.remove("blink-slow","blink-fast");
 
   if (mental > 80) setUIColor("#00ff00");
   else if (mental > 60) setUIColor("#66ff00");
@@ -173,27 +179,29 @@ function updateUI() {
   else if (mental > 20) {
     setUIColor("#ff9900");
     mentalBar.classList.add("blink-slow");
-  }
-  else {
+  } else {
     setUIColor("#ff0000");
     mentalBar.classList.add("blink-fast");
   }
 }
 
+/* ===== 자동 감소 ===== */
+function updateMental() {
+  mental -= decreasePerTick;
+  if (mental < 0) mental = 0;
+  updateUI();
+}
 setInterval(updateMental, 100);
 
-/* 🔥 1초 안에 더블 터치 회복 */
+/* ===== 1초 내 더블터치 +10% ===== */
 let tapCount = 0;
 let lastTapTime = 0;
 
 mentalContainer.addEventListener("click", function() {
-  const now = new Date().getTime();
+  const now = Date.now();
 
-  if (now - lastTapTime < 1000) {
-    tapCount++;
-  } else {
-    tapCount = 1;
-  }
+  if (now - lastTapTime < 1000) tapCount++;
+  else tapCount = 1;
 
   lastTapTime = now;
 
@@ -205,29 +213,27 @@ mentalContainer.addEventListener("click", function() {
   }
 });
 
-/* ===== 초단순 도로 지도 ===== */
-
+/* ===== 극단적 도로 전용 지도 ===== */
 const map = L.map('map', {
   zoomControl: false,
   attributionControl: false
 }).setView([37.5665, 126.9780], 17);
 
-/* 🔥 글씨 제거된 다크 지도 */
 L.tileLayer(
-  'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png',
+  'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',
   {
     subdomains: 'abcd',
     maxZoom: 19
   }
 ).addTo(map);
-let marker;
 
+/* ===== 내 위치 ===== */
 if (navigator.geolocation) {
-  navigator.geolocation.watchPosition(position => {
+  navigator.geolocation.watchPosition(pos => {
 
-    const lat = position.coords.latitude;
-    const lon = position.coords.longitude;
-    const heading = position.coords.heading;
+    const lat = pos.coords.latitude;
+    const lon = pos.coords.longitude;
+    const heading = pos.coords.heading;
 
     map.setView([lat, lon]);
 
@@ -238,7 +244,7 @@ if (navigator.geolocation) {
       const icon = L.divIcon({
         html: arrowIcon,
         className: '',
-        iconSize: [20,20]
+        iconSize: [24,24]
       });
 
       marker = L.marker([lat, lon], { icon: icon }).addTo(map);
@@ -256,4 +262,3 @@ if (navigator.geolocation) {
 
 </body>
 </html>
-
