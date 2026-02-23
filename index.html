@@ -1,168 +1,78 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<title>Porori HUD</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>OW Widget</title>
+  <style>
+    /* 배경 투명 */
+    html, body { margin: 0; padding: 0; background: transparent; overflow: hidden; }
 
-<link href="https://cdn.jsdelivr.net/gh/webfontworld/baemin/BMDOHYEON.css" rel="stylesheet">
+    /* 위젯 전체(하단 고정) */
+    #widget {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      height: 180px; /* 필요하면 조절 */
+      pointer-events: none; /* 클릭 막기(OBS에서 편함) */
+    }
 
-<style>
+    /* 왼쪽 THIS */
+    #left {
+      position: absolute;
+      left: 16px;
+      bottom: 16px;
+      height: 110px;   /* 필요시 조절 */
+      width: auto;
+      image-rendering: auto;
+    }
 
-/* ===== 전역 폰트 ===== */
-body, * {
-  font-family: 'BMDOHYEON', sans-serif !important;
-}
-
-body{
-  margin:0;
-  background:transparent;
-  overflow:hidden;
-}
-
-/* ================= 멘탈 HUD ================= */
-
-.neon-box{
-  border:2px solid #00ff66;
-  box-shadow:0 0 12px #00ff66, 0 0 24px #00ff66;
-  padding:12px;
-  color:#00ff66;
-}
-
-#hud{
-  position:absolute;
-  top:20px;
-  left:20px;
-  width:420px;
-}
-
-#name{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  font-size:26px;
-  margin-bottom:12px;
-}
-
-#logo{
-  width:36px;
-}
-
-#mental-container{
-  width:100%;
-  height:24px;
-  background:#111;
-  margin-bottom:6px;
-  cursor:pointer;
-}
-
-#mental-bar{
-  height:100%;
-  width:100%;
-  background:#00ff66;
-  transition:width 0.1s linear, background 0.3s;
-}
-
-#mental-text{
-  font-size:20px;
-}
-
-/* ================= 가운데 아래 PNG ================= */
-
-#gauge-wrap{
-  position:absolute;
-  bottom:20px;
-  left:50%;
-  transform:translateX(-50%);
-  width:220px;
-  height:220px;
-  pointer-events:none; /* 방송 터치 방해 안 함 */
-}
-
-#gauge-img{
-  width:100%;
-  height:100%;
-  object-fit:contain;
-}
-
-</style>
+    /* 중앙 게이지 */
+    #center {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 16px;
+      height: 110px;   /* 필요시 조절 */
+      width: auto;
+      image-rendering: auto;
+    }
+  </style>
 </head>
-
 <body>
-
-<!-- ================= 멘탈 HUD ================= -->
-<div id="hud">
-  <div class="neon-box" id="hud-box">
-    <div id="name">
-      <img src="porori.png" id="logo">
-      포로리왓썰의 MENTAL
-    </div>
-
-    <div id="mental-container">
-      <div id="mental-bar"></div>
-    </div>
-
-    <div id="mental-text">100.0%</div>
+  <div id="widget">
+    <img id="left" src="assets/THIS.png" alt="THIS" />
+    <img id="center" src="assets/ow_thick_000.png" alt="Gauge" />
   </div>
-</div>
 
-<!-- ================= 가운데 아래 게이지 이미지 ================= -->
-<div id="gauge-wrap">
-  <img src="gauge_base_square.png" id="gauge-img">
-</div>
+  <script>
+    // 설정
+    const INTERVAL_MS = 30_000; // 30초
+    const MIN = 0;
+    const MAX = 100;
 
-<script>
+    const pad3 = (n) => String(n).padStart(3, "0");
+    const gaugePath = (n) => `assets/ow_thick_${pad3(n)}.png`;
 
-/* ================= 멘탈 시스템 ================= */
+    const centerImg = document.getElementById("center");
 
-let mental = 100;
+    // 프리로드(깜빡임 방지)
+    const preload = [];
+    for (let i = MIN; i <= MAX; i++) {
+      const im = new Image();
+      im.src = gaugePath(i);
+      preload.push(im);
+    }
 
-const decreasePerMinute = 0.5;
-const decreasePerTick = (decreasePerMinute/60)/10;
+    // 30초마다 1칸씩 증가 (100 넘어가면 0으로)
+    let idx = MIN;
 
-const mentalBar = document.getElementById("mental-bar");
-const mentalText = document.getElementById("mental-text");
-const mentalContainer = document.getElementById("mental-container");
+    function updateGauge() {
+      centerImg.src = gaugePath(idx);
+      idx = (idx >= MAX) ? MIN : (idx + 1);
+    }
 
-function updateMental(){
-
-  mental -= decreasePerTick;
-  if(mental < 0) mental = 0;
-
-  mentalBar.style.width = mental + "%";
-  mentalText.innerText = mental.toFixed(1) + "%";
-
-  // 색상 단계
-  if (mental > 80) mentalBar.style.background = "#00ff66";
-  else if (mental > 60) mentalBar.style.background = "#66ff00";
-  else if (mental > 40) mentalBar.style.background = "#ffff00";
-  else if (mental > 20) mentalBar.style.background = "#ff9900";
-  else mentalBar.style.background = "#ff0000";
-}
-
-setInterval(updateMental,100);
-
-/* ✅ 더블탭 회복 +10% */
-
-let tapCount = 0;
-let lastTapTime = 0;
-
-mentalContainer.addEventListener("click", function(){
-
-  const now = Date.now();
-
-  if(now - lastTapTime < 1000) tapCount++;
-  else tapCount = 1;
-
-  lastTapTime = now;
-
-  if(tapCount >= 2){
-    mental += 10;
-    if(mental > 100) mental = 100;
-    tapCount = 0;
-  }
-});
-
-</script>
-
+    updateGauge(); // 시작 시 한 번 표시
+    setInterval(updateGauge, INTERVAL_MS);
+  </script>
 </body>
 </html>
