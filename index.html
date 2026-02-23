@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <title>Porori Mental HUD</title>
 
-<!-- 배달의민족 글꼴 -->
 <link href="https://cdn.jsdelivr.net/gh/webfontworld/baemin/BMDOHYEON.css" rel="stylesheet">
 
 <style>
@@ -33,33 +32,31 @@ body {
 /* 네온 박스 */
 .neon-box {
   border: 2px solid #ffff00;
-  box-shadow: 0 0 10px #ffff00, 0 0 20px #ffff00;
-  padding: 8px;
-  margin-bottom: 10px;
+  box-shadow: 0 0 8px #ffff00, 0 0 16px #ffff00;
+  padding: 12px;
 }
 
-/* 이름 */
+/* 제목 */
 #name {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 32px;
+  font-size: 26px;
   color: #ffff00;
-  text-shadow: 0 0 5px #ffff00, 0 0 10px #ffff00;
+  text-shadow: 0 0 5px #ffff00;
+  margin-bottom: 12px;
 }
 
 #logo {
-  width: 40px;
+  width: 36px;
 }
 
-/* 멘탈바 */
+/* 멘탈 바 */
 #mental-container {
-  width: 400px;
-  height: 30px;
-  border: 2px solid #ffff00;
-  box-shadow: 0 0 10px #ffff00;
+  width: 100%;
+  height: 24px;
   background: #111;
-  margin-bottom: 5px;
+  margin-bottom: 6px;
 }
 
 #mental-bar {
@@ -71,18 +68,17 @@ body {
 
 #mental-text {
   color: #ffff00;
-  font-size: 26px;
+  font-size: 20px;
   text-shadow: 0 0 5px #ffff00;
-  margin-bottom: 8px;
 }
 
 /* 지도 */
 #map {
   width: 100%;
-  height: 250px;
+  height: 240px;
 }
 
-/* 깜빡임 */
+/* 2초 깜빡임 */
 @keyframes blinkSlow {
   0% { opacity: 1; }
   50% { opacity: 0.2; }
@@ -90,6 +86,7 @@ body {
 }
 .blink-slow { animation: blinkSlow 2s infinite; }
 
+/* 1초 깜빡임 */
 @keyframes blinkFast {
   0% { opacity: 1; }
   50% { opacity: 0.2; }
@@ -102,25 +99,25 @@ body {
 
 <body>
 
-<!-- HUD -->
+<!-- ===== 왼쪽 상단 HUD ===== -->
 <div id="hud">
-
   <div class="neon-box">
+
     <div id="name">
       <img src="porori.png" id="logo">
-      포로리왓썰
+      포로리왓썰의 MENTAL
     </div>
+
+    <div id="mental-container">
+      <div id="mental-bar"></div>
+    </div>
+
+    <div id="mental-text">100.0%</div>
+
   </div>
-
-  <div id="mental-container">
-    <div id="mental-bar"></div>
-  </div>
-
-  <div id="mental-text">100.0%</div>
-
 </div>
 
-<!-- 네비 -->
+<!-- ===== 왼쪽 하단 네비 ===== -->
 <div id="nav-box">
   <div class="neon-box">
     <div id="map"></div>
@@ -136,6 +133,7 @@ body {
    멘탈 시스템
 =================== */
 let mental = 100;
+
 const decreasePerMinute = 0.5;
 const decreasePerSecond = decreasePerMinute / 60;
 const decreasePerTick = decreasePerSecond / 10;
@@ -155,23 +153,29 @@ function updateUI() {
 
   mentalBar.classList.remove("blink-slow", "blink-fast");
 
-  if (mental > 80) mentalBar.style.background = "#00ff00";
-  else if (mental > 60) mentalBar.style.background = "#66ff00";
-  else if (mental > 40) mentalBar.style.background = "#ffff00";
+  if (mental > 80) {
+    mentalBar.style.background = "#00ff00";   // 초록
+  }
+  else if (mental > 60) {
+    mentalBar.style.background = "#66ff00";   // 연두
+  }
+  else if (mental > 40) {
+    mentalBar.style.background = "#ffff00";   // 노랑
+  }
   else if (mental > 20) {
-    mentalBar.style.background = "#ff9900";
-    mentalBar.classList.add("blink-slow");
+    mentalBar.style.background = "#ff9900";   // 주황
+    mentalBar.classList.add("blink-slow");    // 2초 깜빡임
   }
   else {
-    mentalBar.style.background = "#ff0000";
-    mentalBar.classList.add("blink-fast");
+    mentalBar.style.background = "#ff0000";   // 빨강
+    mentalBar.classList.add("blink-fast");    // 1초 깜빡임
   }
 }
 
 setInterval(updateMental, 100);
 
 /* ===================
-   회전 네비
+   심플 도로 지도
 =================== */
 
 const map = L.map('map', {
@@ -179,9 +183,10 @@ const map = L.map('map', {
   attributionControl: false
 }).setView([37.5665, 126.9780], 17);
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  maxZoom: 19
-}).addTo(map);
+L.tileLayer(
+  'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+  { maxZoom: 19 }
+).addTo(map);
 
 let marker;
 
@@ -196,7 +201,7 @@ if (navigator.geolocation) {
 
     if (!marker) {
       marker = L.circleMarker([lat, lon], {
-        radius: 8,
+        radius: 6,
         color: "#ffff00",
         fillColor: "#ffff00",
         fillOpacity: 1
@@ -205,15 +210,12 @@ if (navigator.geolocation) {
       marker.setLatLng([lat, lon]);
     }
 
-    // 🔥 지도 회전
     if (heading !== null) {
       document.getElementById("map").style.transform =
         "rotate(" + (-heading) + "deg)";
     }
 
-  }, null, {
-    enableHighAccuracy: true
-  });
+  }, null, { enableHighAccuracy: true });
 }
 </script>
 
