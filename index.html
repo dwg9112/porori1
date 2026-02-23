@@ -5,20 +5,31 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
 <title>Porori Mental HUD</title>
 
+<!-- ✅ 배달의민족 폰트(도현체) -->
 <link href="https://cdn.jsdelivr.net/gh/webfontworld/baemin/BMDOHYEON.css" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
 <style>
+  /* ✅ 전역 배민 폰트 강제(Leaflet 포함) */
+  body,
+  *,
+  .leaflet-container,
+  .leaflet-pane,
+  .leaflet-control,
+  .leaflet-tooltip,
+  .leaflet-popup{
+    font-family:'BMDOHYEON', sans-serif !important;
+  }
+
   body{
     margin:0;
     background:transparent;
-    font-family:'BMDOHYEON',sans-serif;
     overflow:hidden;
   }
 
-  /* ===== 네온 박스(멘탈 색 연동) ===== */
   .neon-box{
     border:2px solid #00ff00;
-    box-shadow:0 0 10px currentColor,0 0 22px currentColor;
+    box-shadow:0 0 10px currentColor, 0 0 22px currentColor;
     padding:12px;
     color:#00ff00;
     background:rgba(0,0,0,0.55);
@@ -31,13 +42,15 @@
     top:20px;
     left:20px;
     width:420px;
+    z-index:10;
   }
 
   #nav-box{
     position:absolute;
     bottom:20px;
     left:20px;
-    width:300px;
+    width:320px;
+    z-index:10;
   }
 
   #title{
@@ -55,7 +68,7 @@
     height:24px;
     background:#111;
     margin-bottom:6px;
-    cursor:pointer; /* 더블탭 */
+    cursor:pointer;
   }
 
   #mental-bar{
@@ -67,21 +80,43 @@
 
   #mental-text{ font-size:20px; }
 
-  /* ===== 레이더 맵 ===== */
-  #radar-wrap{
+  /* ===== 미니맵 ===== */
+  #map-wrap{
     position:relative;
     width:100%;
     height:240px;
     overflow:hidden;
-    border-radius:6px;
+    border-radius:8px;
+    background:rgba(0,0,0,0.35);
   }
 
-  #radar{
+  #map{
     width:100%;
     height:100%;
-    display:block;
-    /* 배경 더 HUD스럽게 */
+  }
+
+  /* 지도 위에 HUD처럼 반투명 어둡게 덮기 */
+  #map-overlay{
+    position:absolute;
+    inset:0;
     background:rgba(0,0,0,0.35);
+    pointer-events:none;
+    z-index:401;
+  }
+
+  /* 중앙 화살표 */
+  #player{
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    width:0;
+    height:0;
+    border-left:10px solid transparent;
+    border-right:10px solid transparent;
+    border-bottom:22px solid #00ff00;
+    filter: drop-shadow(0 0 10px currentColor);
+    z-index:402;
   }
 
   /* 깜빡임 */
@@ -90,12 +125,14 @@
 
   @keyframes blinkFast{ 0%,100%{opacity:1;} 50%{opacity:0.2;} }
   .blink-fast{ animation: blinkFast 1s infinite; }
+
+  /* Leaflet UI 제거 */
+  .leaflet-control-container{ display:none; }
 </style>
 </head>
 
 <body>
 
-<!-- ===== HUD ===== -->
 <div id="hud">
   <div class="neon-box" id="hudBox">
     <div id="title">
@@ -111,43 +148,42 @@
   </div>
 </div>
 
-<!-- ===== 레이더 미니맵 ===== -->
 <div id="nav-box">
   <div class="neon-box" id="navBox">
-    <div id="radar-wrap">
-      <canvas id="radar" width="300" height="240"></canvas>
+    <div id="map-wrap">
+      <div id="map"></div>
+      <div id="map-overlay"></div>
+      <div id="player"></div>
     </div>
   </div>
 </div>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
 /* =========================
-   멘탈 시스템
+   (A) 멘탈 시스템
 ========================= */
 let mental = 100;
-
-// 1분당 0.5% 감소
 const decreasePerMinute = 0.5;
 const decreasePerSecond = decreasePerMinute / 60;
-const decreasePerTick = decreasePerSecond / 10; // 100ms 기준
+const decreasePerTick = decreasePerSecond / 10; // 100ms
 
 const mentalBar = document.getElementById("mental-bar");
 const mentalText = document.getElementById("mental-text");
 const hudBox = document.getElementById("hudBox");
 const navBox = document.getElementById("navBox");
 const mentalContainer = document.getElementById("mental-container");
+const playerArrow = document.getElementById("player");
 
 let currentColor = "#00ff00";
 
-// 멘탈 색상 기준 + 전체 UI 연동
 function setUIColor(color){
   currentColor = color;
 
-  // 바/글씨
   mentalBar.style.background = color;
   mentalText.style.color = color;
 
-  // 네온 박스 색
   hudBox.style.borderColor = color;
   navBox.style.borderColor = color;
 
@@ -156,23 +192,28 @@ function setUIColor(color){
 
   hudBox.style.boxShadow = `0 0 10px ${color}, 0 0 22px ${color}`;
   navBox.style.boxShadow = `0 0 10px ${color}, 0 0 22px ${color}`;
+
+  playerArrow.style.borderBottomColor = color;
+  playerArrow.style.color = color; // drop-shadow currentColor용
 }
 
 function updateUI(){
   mentalBar.style.width = mental + "%";
   mentalText.innerText = mental.toFixed(1) + "%";
-
-  mentalBar.classList.remove("blink-slow", "blink-fast");
+  mentalBar.classList.remove("blink-slow","blink-fast");
+  navBox.classList.remove("blink-slow","blink-fast");
 
   if (mental > 80) setUIColor("#00ff00");
   else if (mental > 60) setUIColor("#66ff00");
   else if (mental > 40) setUIColor("#ffff00");
   else if (mental > 20){
     setUIColor("#ff9900");
-    mentalBar.classList.add("blink-slow"); // 2초
+    mentalBar.classList.add("blink-slow");
+    navBox.classList.add("blink-slow");
   } else {
     setUIColor("#ff0000");
-    mentalBar.classList.add("blink-fast"); // 1초
+    mentalBar.classList.add("blink-fast");
+    navBox.classList.add("blink-fast");
   }
 }
 
@@ -180,12 +221,11 @@ setInterval(()=>{
   mental -= decreasePerTick;
   if (mental < 0) mental = 0;
   updateUI();
-}, 100);
+},100);
 
-// ✅ 1초 안에 더블탭 +10%
+// ✅ 1초 내 더블탭 +10%
 let tapCount = 0;
 let lastTapTime = 0;
-
 mentalContainer.addEventListener("click", ()=>{
   const now = Date.now();
   if (now - lastTapTime < 1000) tapCount++;
@@ -203,234 +243,75 @@ mentalContainer.addEventListener("click", ()=>{
 updateUI();
 
 /* =========================
-   레이더 미니맵 (GPS 없이)
-   - 도로 선만
-   - 화살표(내 위치)
-   - 방향 센서 있으면 회전
-   - 이동은 시뮬레이션 전진
+   (B) “실제 지도 타일” 이동 미니맵 (시뮬)
 ========================= */
-const canvas = document.getElementById("radar");
-const ctx = canvas.getContext("2d");
 
-// URL 파라미터로 속도 조절 가능: ?speed=35  (km/h)
+// URL 파라미터:
+//  - lat, lon : 시작 위치(대략 위치)
+//  - speed : km/h
+// 예) .../index.html?lat=36.889&lon=126.629&speed=35
 const params = new URLSearchParams(location.search);
-let simSpeedKmh = Number(params.get("speed") || 28); // 기본 28km/h
-if (!isFinite(simSpeedKmh) || simSpeedKmh < 0) simSpeedKmh = 28;
 
-// 월드 좌표계(가짜 도로)
-const roads = buildRoadNetwork(1337);
+let lat = parseFloat(params.get("lat")) || 36.889; // 당진 근처 기본값
+let lon = parseFloat(params.get("lon")) || 126.629;
+let speedKmh = parseFloat(params.get("speed")) || 28;
+if (!isFinite(speedKmh) || speedKmh < 0) speedKmh = 28;
 
-// 내 위치/방향(시뮬레이션)
-let px = 0, py = 0;
-let headingDeg = 0; // 0 = 위쪽(북)
-let hasHeading = false;
+let headingDeg = 0;
 
-// 센서(가능하면 사용)
-setupOrientation();
+// 지도 생성
+const map = L.map('map', {
+  zoomControl:false,
+  attributionControl:false,
+  dragging:false,
+  scrollWheelZoom:false,
+  doubleClickZoom:false,
+  boxZoom:false,
+  keyboard:false,
+  tap:false
+}).setView([lat, lon], 17);
 
-// 매 프레임 이동 + 렌더
+// ✅ 건물/도로 잘 보이는 지도(라벨 제거)
+L.tileLayer(
+  'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png',
+  { subdomains:'abcd', maxZoom:19 }
+).addTo(map);
+
+// HUD 느낌 보정
+document.getElementById("map").style.filter =
+  "grayscale(35%) contrast(140%) brightness(105%)";
+
+// 방향 센서(가능하면 사용)
+window.addEventListener("deviceorientation", (e)=>{
+  if (typeof e.alpha === "number"){
+    headingDeg = e.alpha;
+  }
+}, true);
+
+// 지도 중심을 계속 이동시켜 “주행” 느낌
 let lastT = performance.now();
-requestAnimationFrame(loop);
+requestAnimationFrame(tick);
 
-function loop(t){
-  const dt = Math.min(0.05, (t - lastT) / 1000); // sec (너무 튀는거 방지)
+function tick(t){
+  const dt = Math.min(0.05, (t - lastT) / 1000);
   lastT = t;
 
-  // 속도 (km/h -> m/s)  (여기서 “월드 단위”를 m처럼 사용)
-  const v = (simSpeedKmh * 1000) / 3600;
+  const v = (speedKmh * 1000) / 3600; // m/s
+  const rad = headingDeg * Math.PI / 180;
 
-  // headingDeg 기준으로 전진 (나침반 없으면 그냥 위로 전진)
-  const rad = deg2rad(headingDeg);
-  px += Math.sin(rad) * v * dt;
-  py -= Math.cos(rad) * v * dt;
+  // 위도/경도 이동량(간단 근사)
+  const dLat = (Math.cos(rad) * v * dt) / 111320;
+  const metersPerDegLon = 111320 * Math.cos(lat * Math.PI / 180);
+  const dLon = (Math.sin(rad) * v * dt) / (metersPerDegLon || 1);
 
-  renderRadar();
+  lat += dLat;
+  lon += dLon;
 
-  requestAnimationFrame(loop);
-}
+  map.setView([lat, lon], map.getZoom(), { animate:false });
 
-function renderRadar(){
-  const w = canvas.width, h = canvas.height;
-
-  // 배경을 더 죽이기(투명 HUD 느낌)
-  ctx.clearRect(0,0,w,h);
-
-  // 아주 옅은 어두운 오버레이
-  ctx.fillStyle = "rgba(0,0,0,0.55)";
-  ctx.fillRect(0,0,w,h);
-
-  // 레이더 스캔 느낌(선택)
-  drawSubtleGrid(w,h);
-
-  // 카메라(내 위치 중심) + 회전
-  const scale = 0.7; // 확대/축소(값 낮추면 더 넓게)
-  const cx = w/2, cy = h/2;
-
-  // 맵을 내 방향 기준으로 “고정”처럼 보이게: 도로를 -heading 만큼 회전
-  const rot = -deg2rad(headingDeg);
-
-  // 도로 그리기
-  ctx.save();
-  ctx.translate(cx, cy);
-  ctx.rotate(rot);
-  ctx.scale(scale, scale);
-
-  // 네온 도로
-  ctx.lineCap = "round";
-  ctx.lineJoin = "round";
-  ctx.strokeStyle = currentColor;
-  ctx.shadowColor = currentColor;
-  ctx.shadowBlur = 10;
-
-  // 도로는 선만 (극단적)
-  for (const seg of roads){
-    // 월드->스크린: (x-px, y-py)
-    const x1 = (seg.x1 - px);
-    const y1 = (seg.y1 - py);
-    const x2 = (seg.x2 - px);
-    const y2 = (seg.y2 - py);
-
-    // 화면 밖 너무 멀면 스킵(성능)
-    if (Math.abs(x1) > 800 && Math.abs(x2) > 800) continue;
-    if (Math.abs(y1) > 800 && Math.abs(y2) > 800) continue;
-
-    ctx.globalAlpha = 0.9;
-    ctx.lineWidth = seg.major ? 3 : 2;
-    ctx.beginPath();
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
-    ctx.stroke();
-  }
-
-  ctx.restore();
-
-  // 내 위치 화살표(항상 위쪽으로 향하도록 “맵만” 회전했으니 화살표는 고정)
-  drawPlayerArrow(cx, cy);
-
-  // 가장자리 비네팅(더 HUD)
-  vignette(w,h);
-}
-
-function drawPlayerArrow(x,y){
-  ctx.save();
-  ctx.translate(x,y);
-
-  // 화살표
-  ctx.shadowColor = currentColor;
-  ctx.shadowBlur = 12;
-  ctx.fillStyle = currentColor;
-
-  ctx.beginPath();
-  ctx.moveTo(0, -18);
-  ctx.lineTo(10, 12);
-  ctx.lineTo(0, 6);
-  ctx.lineTo(-10, 12);
-  ctx.closePath();
-  ctx.fill();
-
-  // 중심점
-  ctx.shadowBlur = 0;
-  ctx.globalAlpha = 0.9;
-  ctx.beginPath();
-  ctx.arc(0, 6, 2.5, 0, Math.PI*2);
-  ctx.fill();
-
-  ctx.restore();
-}
-
-function setupOrientation(){
-  // Android WebView/Chrome 대부분은 그냥 동작
-  window.addEventListener("deviceorientation", (e)=>{
-    // webkitCompassHeading은 iOS 쪽, Android는 alpha 사용 (0~360)
-    if (typeof e.alpha === "number"){
-      // alpha: 0이 북쪽이 아니고 기기 기준일 수 있어도, “돌아간다” 느낌은 남
-      headingDeg = e.alpha;
-      hasHeading = true;
-    }
-  }, true);
-}
-
-function buildRoadNetwork(seed){
-  // “진짜 도로처럼 보이는 선만” 만들기: 격자 + 일부 대각/곡선 느낌
-  const r = mulberry32(seed);
-  const segs = [];
-
-  // 메이저 도로(긴 직선)
-  for (let i=0;i<10;i++){
-    const y = (i-5)*180 + (r()-0.5)*30;
-    segs.push({x1:-2000, y1:y, x2:2000, y2:y, major:true});
-  }
-  for (let i=0;i<8;i++){
-    const x = (i-4)*220 + (r()-0.5)*30;
-    segs.push({x1:x, y1:-2000, x2:x, y2:2000, major:true});
-  }
-
-  // 마이너 도로(짧은 연결)
-  for (let i=0;i<70;i++){
-    const x = (r()-0.5)*2400;
-    const y = (r()-0.5)*2000;
-    const len = 120 + r()*260;
-    const ang = r()*Math.PI*2;
-    segs.push({
-      x1:x, y1:y,
-      x2:x + Math.cos(ang)*len,
-      y2:y + Math.sin(ang)*len,
-      major:false
-    });
-  }
-
-  // 약간의 “곡선 느낌”은 다각 선분으로(짧게)
-  for (let i=0;i<18;i++){
-    const cx = (r()-0.5)*2200;
-    const cy = (r()-0.5)*1800;
-    let px = cx, py = cy;
-    let ang = r()*Math.PI*2;
-    for (let k=0;k<6;k++){
-      ang += (r()-0.5)*0.6;
-      const nx = px + Math.cos(ang)*(90 + r()*80);
-      const ny = py + Math.sin(ang)*(90 + r()*80);
-      segs.push({x1:px, y1:py, x2:nx, y2:ny, major:false});
-      px = nx; py = ny;
-    }
-  }
-  return segs;
-}
-
-/* HUD 느낌 보조 */
-function drawSubtleGrid(w,h){
-  ctx.save();
-  ctx.globalAlpha = 0.10;
-  ctx.strokeStyle = currentColor;
-  ctx.lineWidth = 1;
-  ctx.shadowBlur = 0;
-
-  const step = 40;
-  for (let x=0; x<w; x+=step){
-    ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke();
-  }
-  for (let y=0; y<h; y+=step){
-    ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke();
-  }
-  ctx.restore();
-}
-
-function vignette(w,h){
-  const g = ctx.createRadialGradient(w/2,h/2, 20, w/2,h/2, Math.max(w,h)/1.1);
-  g.addColorStop(0, "rgba(0,0,0,0)");
-  g.addColorStop(1, "rgba(0,0,0,0.55)");
-  ctx.fillStyle = g;
-  ctx.fillRect(0,0,w,h);
-}
-
-function deg2rad(d){ return d*Math.PI/180; }
-function mulberry32(a){
-  return function() {
-    let t = a += 0x6D2B79F5;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  }
+  requestAnimationFrame(tick);
 }
 </script>
+
 </body>
 </html>
