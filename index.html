@@ -1,225 +1,133 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-<title>Porori Mental HUD</title>
+<meta charset="UTF-8">
+<title>Porori HUD</title>
 
-<!-- ✅ 배달의민족 폰트(도현체) -->
 <link href="https://cdn.jsdelivr.net/gh/webfontworld/baemin/BMDOHYEON.css" rel="stylesheet">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
 <style>
-  /* ✅ 전역 배민 폰트 강제(Leaflet 포함) */
-  body,
-  *,
-  .leaflet-container,
-  .leaflet-pane,
-  .leaflet-control,
-  .leaflet-tooltip,
-  .leaflet-popup{
-    font-family:'BMDOHYEON', sans-serif !important;
-  }
 
-  body{
-    margin:0;
-    background:transparent;
-    overflow:hidden;
-  }
+/* ===== 전역 배민 폰트 ===== */
+body, * {
+  font-family: 'BMDOHYEON', sans-serif !important;
+}
 
-  /* ===== 네온 박스(멘탈 색 연동) ===== */
-  .neon-box{
-    border:2px solid #00ff00;
-    box-shadow:0 0 10px currentColor, 0 0 22px currentColor;
-    padding:12px;
-    color:#00ff00;
-    background:rgba(0,0,0,0.55);
-    backdrop-filter: blur(6px);
-    transition:0.25s;
-  }
+body{
+  margin:0;
+  background:transparent;
+  overflow:hidden;
+}
 
-  #hud{
-    position:absolute;
-    top:20px;
-    left:20px;
-    width:420px;
-    z-index:10;
-  }
+/* ================= HUD ================= */
 
-  #nav-box{
-    position:absolute;
-    bottom:20px;
-    left:20px;
-    width:320px;
-    z-index:10;
-  }
+.neon-box{
+  border:2px solid #00ff66;
+  box-shadow:0 0 12px #00ff66, 0 0 24px #00ff66;
+  padding:12px;
+  color:#00ff66;
+}
 
-  #title{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    font-size:26px;
-    margin-bottom:12px;
-  }
+#hud{
+  position:absolute;
+  top:20px;
+  left:20px;
+  width:420px;
+}
 
-  #logo{ width:36px; height:auto; }
+#name{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:26px;
+  margin-bottom:12px;
+}
 
-  #mental-container{
-    width:100%;
-    height:24px;
-    background:#111;
-    margin-bottom:6px;
-    cursor:pointer; /* 더블탭 */
-  }
+#logo{
+  width:36px;
+}
 
-  #mental-bar{
-    height:100%;
-    width:100%;
-    background:#00ff00;
-    transition:width 0.1s linear, background 0.25s;
-  }
+#mental-container{
+  width:100%;
+  height:24px;
+  background:#111;
+  margin-bottom:6px;
+}
 
-  #mental-text{ font-size:20px; }
+#mental-bar{
+  height:100%;
+  width:100%;
+  background:#00ff66;
+  transition:width 0.1s linear, background 0.3s;
+}
 
-  /* ===== 미니맵(진짜 지도처럼 선명) ===== */
-  #map-wrap{
-    position:relative;
-    width:100%;
-    height:240px;
-    overflow:hidden;
-    border-radius:8px;
-    background:rgba(0,0,0,0.2);
-  }
+#mental-text{
+  font-size:20px;
+}
 
-  #map{
-    width:100%;
-    height:100%;
-  }
+/* ================= 원형 게이지 ================= */
 
-  /* 지도 오버레이: 너무 세면 회색처럼 죽으니 아주 약하게 */
-  #map-overlay{
-    position:absolute;
-    inset:0;
-    background:rgba(0,0,0,0.06); /* ✅ 아주 약하게 */
-    pointer-events:none;
-    z-index:401;
-  }
+#gauge-wrap{
+  position:absolute;
+  bottom:30px;
+  left:50%;
+  transform:translateX(-50%);
+  width:220px;
+  height:220px;
+}
 
-  /* 중앙 화살표(내 위치 표시용) */
-  #player{
-    position:absolute;
-    left:50%;
-    top:50%;
-    transform:translate(-50%,-50%);
-    width:0;
-    height:0;
-    border-left:10px solid transparent;
-    border-right:10px solid transparent;
-    border-bottom:22px solid #00ff00;
-    filter: drop-shadow(0 0 10px currentColor);
-    z-index:402;
-  }
+/* PNG 배경 */
+#gauge-base{
+  position:absolute;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  pointer-events:none;
+}
 
-  /* ===== 디바 궁 HUD ===== */
-  #dva-hud{
-    position:absolute;
-    left:50%;
-    bottom:18px;
-    transform:translateX(-50%);
-    width:520px;
-    z-index:20;
-    pointer-events:none; /* 프리즘에서 터치 불가 환경 고려 */
-  }
+/* SVG 게이지 */
+#gauge-svg{
+  position:absolute;
+  width:100%;
+  height:100%;
+  transform:rotate(90deg); /* ⭐ 시작을 5시 방향으로 보정 */
+}
 
-  #dva-box{
-    border:2px solid #00ff00;
-    box-shadow:0 0 10px currentColor, 0 0 22px currentColor;
-    color:#00ff00;
-    background:rgba(0,0,0,0.55);
-    backdrop-filter: blur(6px);
-    border-radius:10px;
-    padding:10px 12px;
-    transition:0.25s;
-  }
+/* 진행 원 */
+#gauge-progress{
+  fill:none;
+  stroke:url(#grad);
+  stroke-width:10;
+  stroke-linecap:round;
+  filter:drop-shadow(0 0 6px #ff7a00)
+         drop-shadow(0 0 12px #ff2fd3);
+  transition:stroke-dashoffset 0.3s linear;
+}
 
-  #dva-top{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:12px;
-    margin-bottom:8px;
-    font-size:20px;
-  }
+/* 퍼센트 */
+#gauge-text{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:32px;
+  color:#ff9a00;
+  text-shadow:
+    0 0 8px #ff7a00,
+    0 0 16px #ff2fd3;
+}
 
-  #dva-label{
-    letter-spacing:0.5px;
-  }
-
-  #dva-percent{
-    font-size:20px;
-  }
-
-  #dva-container{
-    width:100%;
-    height:20px;
-    background:#111;
-    border-radius:6px;
-    overflow:hidden;
-  }
-
-  #dva-bar{
-    width:0%;
-    height:100%;
-    background:#00ff00;
-    transition:width 0.1s linear, background 0.25s;
-  }
-
-  /* “궁 ON” 텍스트 */
-  #dva-on{
-    margin-top:8px;
-    font-size:22px;
-    text-align:center;
-    display:none;
-    letter-spacing:1px;
-  }
-
-  /* ===== 깜빡임(멘탈용) ===== */
-  @keyframes blinkSlow{ 0%,100%{opacity:1;} 50%{opacity:0.2;} }
-  .blink-slow{ animation: blinkSlow 2s infinite; }
-
-  @keyframes blinkFast{ 0%,100%{opacity:1;} 50%{opacity:0.2;} }
-  .blink-fast{ animation: blinkFast 1s infinite; }
-
-  /* ===== 디바 궁 ON 흔들림(격렬) ===== */
-  @keyframes dvaShake {
-    0%   { transform: translateX(-50%) translateY(0) rotate(0deg); }
-    10%  { transform: translateX(-50%) translateY(-2px) rotate(-2deg); }
-    20%  { transform: translateX(-50%) translateY(2px)  rotate(2deg); }
-    30%  { transform: translateX(-50%) translateY(-3px) rotate(-3deg); }
-    40%  { transform: translateX(-50%) translateY(3px)  rotate(3deg); }
-    50%  { transform: translateX(-50%) translateY(-2px) rotate(-2deg); }
-    60%  { transform: translateX(-50%) translateY(2px)  rotate(2deg); }
-    70%  { transform: translateX(-50%) translateY(-3px) rotate(-3deg); }
-    80%  { transform: translateX(-50%) translateY(3px)  rotate(3deg); }
-    90%  { transform: translateX(-50%) translateY(-2px) rotate(-2deg); }
-    100% { transform: translateX(-50%) translateY(0) rotate(0deg); }
-  }
-  .dva-shake {
-    animation: dvaShake 0.18s infinite;
-  }
-
-  /* Leaflet UI 제거 */
-  .leaflet-control-container{ display:none; }
 </style>
 </head>
 
 <body>
 
-<!-- ===== 멘탈 HUD ===== -->
+<!-- ================= HUD ================= -->
 <div id="hud">
-  <div class="neon-box" id="hudBox">
-    <div id="title">
-      <img src="porori.png" id="logo" alt="porori">
+  <div class="neon-box" id="hud-box">
+    <div id="name">
+      <img src="porori.png" id="logo">
       포로리왓썰의 MENTAL
     </div>
 
@@ -231,252 +139,80 @@
   </div>
 </div>
 
-<!-- ===== 미니맵 ===== -->
-<div id="nav-box">
-  <div class="neon-box" id="navBox">
-    <div id="map-wrap">
-      <div id="map"></div>
-      <div id="map-overlay"></div>
-      <div id="player"></div>
-    </div>
-  </div>
-</div>
+<!-- ================= 원형 게이지 ================= -->
+<div id="gauge-wrap">
 
-<!-- ===== 디바 궁 HUD ===== -->
-<div id="dva-hud">
-  <div id="dva-box">
-    <div id="dva-top">
-      <div id="dva-label">D.VA ULT CHARGE</div>
-      <div id="dva-percent">0%</div>
-    </div>
-    <div id="dva-container">
-      <div id="dva-bar"></div>
-    </div>
-    <div id="dva-on">ULT ON</div>
-  </div>
-</div>
+  <!-- 네 PNG -->
+  <img src="gauge_base.png" id="gauge-base">
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- SVG 진행 -->
+  <svg id="gauge-svg" viewBox="0 0 200 200">
+
+    <defs>
+      <!-- 🔥 주황 + 핑크 네온 -->
+      <linearGradient id="grad">
+        <stop offset="0%" stop-color="#ff7a00"/>
+        <stop offset="100%" stop-color="#ff2fd3"/>
+      </linearGradient>
+    </defs>
+
+    <circle
+      cx="100"
+      cy="100"
+      r="78"
+      id="gauge-progress"
+      stroke-dasharray="490"
+      stroke-dashoffset="490"
+    />
+  </svg>
+
+  <div id="gauge-text">0%</div>
+
+</div>
 
 <script>
-/* =========================
-   (A) 멘탈 시스템
-========================= */
+
+/* ================= 멘탈 ================= */
+
 let mental = 100;
 const decreasePerMinute = 0.5;
-const decreasePerTick = (decreasePerMinute / 60) / 10; // 100ms
+const decreasePerTick = (decreasePerMinute/60)/10;
 
 const mentalBar = document.getElementById("mental-bar");
 const mentalText = document.getElementById("mental-text");
-const hudBox = document.getElementById("hudBox");
-const navBox = document.getElementById("navBox");
-const mentalContainer = document.getElementById("mental-container");
-const playerArrow = document.getElementById("player");
 
-const dvaBox = document.getElementById("dva-box");
-const dvaBar = document.getElementById("dva-bar");
-const dvaPercent = document.getElementById("dva-percent");
-const dvaOn = document.getElementById("dva-on");
-const dvaHud = document.getElementById("dva-hud");
+function updateMental(){
+  mental -= decreasePerTick;
+  if(mental < 0) mental = 0;
 
-let currentColor = "#00ff00";
-
-function setUIColor(color){
-  currentColor = color;
-
-  // 멘탈
-  mentalBar.style.background = color;
-  mentalText.style.color = color;
-  hudBox.style.borderColor = color;
-  navBox.style.borderColor = color;
-  hudBox.style.color = color;
-  navBox.style.color = color;
-  hudBox.style.boxShadow = `0 0 10px ${color}, 0 0 22px ${color}`;
-  navBox.style.boxShadow = `0 0 10px ${color}, 0 0 22px ${color}`;
-
-  // 화살표
-  playerArrow.style.borderBottomColor = color;
-  playerArrow.style.color = color;
-
-  // 디바 궁 HUD도 멘탈 색 연동(원하면 고정색으로 바꿔줄 수도 있음)
-  dvaBox.style.borderColor = color;
-  dvaBox.style.color = color;
-  dvaBox.style.boxShadow = `0 0 10px ${color}, 0 0 22px ${color}`;
-  dvaBar.style.background = color;
-}
-
-function updateMentalUI(){
   mentalBar.style.width = mental + "%";
   mentalText.innerText = mental.toFixed(1) + "%";
-
-  mentalBar.classList.remove("blink-slow","blink-fast");
-  navBox.classList.remove("blink-slow","blink-fast");
-
-  if (mental > 80) setUIColor("#00ff00");
-  else if (mental > 60) setUIColor("#66ff00");
-  else if (mental > 40) setUIColor("#ffff00");
-  else if (mental > 20){
-    setUIColor("#ff9900");
-    mentalBar.classList.add("blink-slow");
-    navBox.classList.add("blink-slow");
-  } else {
-    setUIColor("#ff0000");
-    mentalBar.classList.add("blink-fast");
-    navBox.classList.add("blink-fast");
-  }
 }
+setInterval(updateMental,100);
 
+/* ================= 원형 게이지 ================= */
+
+let gauge = 0;
+const gaugeText = document.getElementById("gauge-text");
+const circle = document.getElementById("gauge-progress");
+const circumference = 490;
+
+/* 🔥 1분에 2% 충전 */
 setInterval(()=>{
-  mental -= decreasePerTick;
-  if (mental < 0) mental = 0;
-  updateMentalUI();
-},100);
+  gauge += 2;
+  if(gauge > 100) gauge = 100;
+  updateGauge();
+}, 60000);
 
-// ✅ 1초 내 더블탭 +10%
-let tapCount = 0;
-let lastTapTime = 0;
-mentalContainer.addEventListener("click", ()=>{
-  const now = Date.now();
-  if (now - lastTapTime < 1000) tapCount++;
-  else tapCount = 1;
-  lastTapTime = now;
+function updateGauge(){
 
-  if (tapCount >= 2){
-    mental += 10;
-    if (mental > 100) mental = 100;
-    updateMentalUI();
-    tapCount = 0;
-  }
-});
-
-updateMentalUI();
-
-/* =========================
-   (B) 미니맵: “진짜 지도처럼 선명”
-   - 라벨 포함 타일
-   - 필터 최소화
-========================= */
-
-// 시작 위치(원하면 네 동네로 박아줄 수 있음)
-const params = new URLSearchParams(location.search);
-let lat = parseFloat(params.get("lat")) || 36.889;  // 당진 근처 기본값
-let lon = parseFloat(params.get("lon")) || 126.629;
-let speedKmh = parseFloat(params.get("speed")) || 28;
-if (!isFinite(speedKmh) || speedKmh < 0) speedKmh = 28;
-
-let headingDeg = 0;
-
-// 지도 생성
-const map = L.map('map', {
-  zoomControl:false,
-  attributionControl:false,
-  dragging:false,
-  scrollWheelZoom:false,
-  doubleClickZoom:false,
-  boxZoom:false,
-  keyboard:false,
-  tap:false
-}).setView([lat, lon], 17);
-
-// ✅ “진짜 지도처럼 선명”: 라벨/건물/도로 잘 보이는 타일
-// Carto Voyager (labels 포함)
-L.tileLayer(
-  'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-  { subdomains:'abcd', maxZoom:19 }
-).addTo(map);
-
-// 지도 필터 최소(선명)
-document.getElementById("map").style.filter =
-  "grayscale(0%) contrast(110%) brightness(108%)";
-
-// 방향 센서(가능하면 사용)
-window.addEventListener("deviceorientation", (e)=>{
-  if (typeof e.alpha === "number"){
-    headingDeg = e.alpha;
-  }
-}, true);
-
-// 시뮬 주행(지도 중심 이동)
-let lastT = performance.now();
-requestAnimationFrame(tick);
-
-function tick(t){
-  const dt = Math.min(0.05, (t - lastT) / 1000);
-  lastT = t;
-
-  const v = (speedKmh * 1000) / 3600;
-  const rad = headingDeg * Math.PI / 180;
-
-  const dLat = (Math.cos(rad) * v * dt) / 111320;
-  const metersPerDegLon = 111320 * Math.cos(lat * Math.PI / 180);
-  const dLon = (Math.sin(rad) * v * dt) / (metersPerDegLon || 1);
-
-  lat += dLat;
-  lon += dLon;
-
-  map.setView([lat, lon], map.getZoom(), { animate:false });
-
-  requestAnimationFrame(tick);
+  const offset = circumference * (1 - gauge/100);
+  circle.style.strokeDashoffset = offset;
+  gaugeText.innerText = Math.floor(gauge) + "%";
 }
 
-/* =========================
-   (C) 디바 궁극기 게이지
-   - 1분에 2% 충전
-   - 100% 되면 1분간 “ULT ON” + 격렬 흔들림
-   - 1분 후 0% 리셋 후 재충전
-========================= */
+updateGauge();
 
-let dvaCharge = 0;
-let dvaOnMode = false;
-let dvaOnUntil = 0;
-
-// 1분 2% => 1초 0.033333...%
-// 100ms tick => 0.003333...%
-const dvaGainPerMinute = 2;
-const dvaGainPerTick = (dvaGainPerMinute / 60) / 10;
-
-function updateDvaUI(){
-  // 숫자는 정수 느낌이 더 게임 같아서 정수로
-  const shown = Math.round(dvaCharge);
-  dvaPercent.textContent = shown + "%";
-  dvaBar.style.width = Math.min(100, dvaCharge) + "%";
-}
-
-function enterDvaOn(){
-  dvaOnMode = true;
-  dvaOnUntil = Date.now() + 60 * 1000; // 1분
-  dvaOn.style.display = "block";
-  dvaHud.classList.add("dva-shake");
-}
-
-function exitDvaOn(){
-  dvaOnMode = false;
-  dvaOn.style.display = "none";
-  dvaHud.classList.remove("dva-shake");
-  dvaCharge = 0; // 리셋
-}
-
-setInterval(()=>{
-  if (!dvaOnMode){
-    dvaCharge += dvaGainPerTick;
-    if (dvaCharge >= 100){
-      dvaCharge = 100;
-      updateDvaUI();
-      enterDvaOn();
-      return;
-    }
-    updateDvaUI();
-  } else {
-    // ON 모드 유지 시간 체크
-    if (Date.now() >= dvaOnUntil){
-      exitDvaOn();
-      updateDvaUI();
-    }
-  }
-}, 100);
-
-updateDvaUI();
 </script>
-
 </body>
 </html>
