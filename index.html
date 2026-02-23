@@ -4,79 +4,180 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>OW Widget</title>
-<style>
-  html, body { margin: 0; padding: 0; background: transparent; overflow: hidden; }
+  <style>
+    html, body { margin: 0; padding: 0; background: transparent; overflow: hidden; }
 
-  #widget {
-    position: fixed;
-    left: 0; right: 0; bottom: 0;
-    height: 360px;           /* 커진 만큼 여유 */
-    pointer-events: none;
-  }
+    #widget{
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      height: 520px;              /* 커진 이미지 + MENTAL 여유 */
+      pointer-events: none;
+    }
 
-  /* 왼쪽 THIS: 2배 */
-  #left {
-    position: absolute;
-    left: 16px;
-    bottom: 16px;
+    /* 왼쪽 THIS: 2배 */
+    #left{
+      position: absolute;
+      left: 16px;
+      bottom: 16px;
 
-    height: 110px;           /* 기준 크기 */
-    width: auto;
+      height: 110px;
+      width: auto;
 
-    transform-origin: left bottom;
-    transform: scale(2);
-  }
+      transform-origin: left bottom;
+      transform: scale(2);
+    }
 
-  /* 중앙 게이지: 3배 */
-  #center {
-    position: absolute;
-    left: 50%;
-    bottom: 16px;
+    /* 중앙 OW 게이지: 3배 */
+    #center{
+      position: absolute;
+      left: 50%;
+      bottom: 16px;
 
-    height: 110px;           /* 기준 크기 */
-    width: auto;
+      height: 110px;
+      width: auto;
 
-    transform-origin: center bottom;
-    transform: translateX(-50%) scale(3);
-  }
-</style>
+      transform-origin: center bottom;
+      transform: translateX(-50%) scale(3);
+    }
+
+    /* ===== MENTAL 게이지(THIS 위에) ===== */
+    #mentalWrap{
+      position:absolute;
+
+      /* THIS 기준 위치 */
+      left: 16px;
+      bottom: 16px;
+
+      /* THIS가 scale(2)라 같이 2배로 맞춤
+         translate의 Y값을 조절해서 'THIS 위'로 정확히 올리면 됨 */
+      transform-origin: left bottom;
+      transform: translate(0px, 125px) scale(2);
+
+      pointer-events:none;
+    }
+
+    #mentalLabel{
+      font-family: Arial, sans-serif;
+      font-weight: 900;
+      font-size: 16px;
+      letter-spacing: 1px;
+      color: #ffffff;
+      text-shadow: 0 2px 6px rgba(0,0,0,.65);
+      margin-bottom: 6px;
+      user-select: none;
+    }
+
+    #mentalBar{
+      display:flex;
+      gap: 4px;
+      padding: 6px 8px;
+      border-radius: 10px;
+      background: rgba(0,0,0,.35);
+      backdrop-filter: blur(2px);
+      box-shadow: 0 6px 18px rgba(0,0,0,.25);
+    }
+
+    .mentalSeg{
+      width: 12px;
+      height: 18px;
+      border-radius: 4px;
+      background: #20d070; /* 초록 */
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.25);
+    }
+
+    .mentalSeg.off{
+      background: #f2f2f2; /* 흰색 */
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.15);
+    }
+  </style>
 </head>
+
 <body>
   <div id="widget">
-    <!-- ✅ 레포 최상단에 있으니 경로에서 assets/ 제거 -->
     <img id="left" src="./THIS.png" alt="THIS" />
     <img id="center" src="./ow_thick_000.png" alt="Gauge" />
+
+    <!-- MENTAL 게이지 -->
+    <div id="mentalWrap" aria-label="MENTAL gauge">
+      <div id="mentalLabel">MENTAL</div>
+      <div id="mentalBar"></div>
+    </div>
   </div>
 
   <script>
-    const INTERVAL_MS = 30_000; // 30초
-    const MIN = 0;
-    const MAX = 100;
+    /* ===============================
+       OW 궁 게이지 (000~100) 30초마다
+       =============================== */
+    const OW_INTERVAL_MS = 30_000;
+    const OW_MIN = 0;
+    const OW_MAX = 100;
 
     const pad3 = (n) => String(n).padStart(3, "0");
-
-    // ✅ 레포 최상단 파일명 기준
-    const gaugePath = (n) => `./ow_thick_${pad3(n)}.png`;
+    const owPath = (n) => `./ow_thick_${pad3(n)}.png`;
 
     const centerImg = document.getElementById("center");
 
-    // 프리로드(깜빡임 방지)
-    for (let i = MIN; i <= MAX; i++) {
+    // preload
+    for (let i = OW_MIN; i <= OW_MAX; i++) {
       const im = new Image();
-      im.src = gaugePath(i);
+      im.src = owPath(i);
     }
 
-    let idx = MIN;
+    let owIdx = OW_MIN;
 
-    function updateGauge() {
-      // 캐시로 안 바뀌는 경우 방지용 쿼리스트링
-      centerImg.src = gaugePath(idx) + `?v=${Date.now()}`;
-      idx = (idx >= MAX) ? MIN : (idx + 1);
+    function updateOW() {
+      // 캐시 방지
+      centerImg.src = owPath(owIdx) + `?v=${Date.now()}`;
+      owIdx = (owIdx >= OW_MAX) ? OW_MIN : (owIdx + 1);
     }
 
-    updateGauge();
-    setInterval(updateGauge, INTERVAL_MS);
+    updateOW();
+    setInterval(updateOW, OW_INTERVAL_MS);
+
+
+    /* ===============================
+       MENTAL 체력 게이지 (20칸)
+       - 처음 20칸 초록
+       - 10분마다 오른쪽부터 1칸 흰색
+       - 0이 되면 10분 유지 후 20으로 리셋
+       =============================== */
+    const MENTAL_TOTAL = 20;
+    const MENTAL_INTERVAL_MS = 10 * 60 * 1000; // 10분
+
+    let mentalOn = MENTAL_TOTAL;
+
+    const mentalBar = document.getElementById("mentalBar");
+    const mentalSegs = [];
+
+    // 20칸 생성
+    for (let i = 0; i < MENTAL_TOTAL; i++) {
+      const seg = document.createElement("div");
+      seg.className = "mentalSeg";
+      mentalBar.appendChild(seg);
+      mentalSegs.push(seg);
+    }
+
+    function renderMental() {
+      // 왼쪽부터 mentalOn개는 초록, 나머지는 흰색(오른쪽부터 흰색처럼 보임)
+      for (let i = 0; i < MENTAL_TOTAL; i++) {
+        const isOn = i < mentalOn;
+        mentalSegs[i].classList.toggle("off", !isOn);
+      }
+    }
+
+    function tickMental() {
+      if (mentalOn > 0) {
+        // 정상 감소
+        mentalOn -= 1;
+      } else {
+        // 0 상태로 10분(한 틱) 유지 후 다음 틱에서 리셋
+        mentalOn = MENTAL_TOTAL;
+      }
+      renderMental();
+    }
+
+    renderMental();
+    setInterval(tickMental, MENTAL_INTERVAL_MS);
   </script>
 </body>
 </html>
-
