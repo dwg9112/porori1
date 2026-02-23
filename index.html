@@ -4,45 +4,64 @@
 <meta charset="UTF-8">
 <title>Porori Mental HUD</title>
 
+<!-- 배달의민족 글꼴 -->
+<link href="https://cdn.jsdelivr.net/gh/webfontworld/baemin/BMDOHYEON.css" rel="stylesheet">
+
 <style>
 body {
   margin: 0;
   background: transparent;
-  font-family: Arial, sans-serif;
+  font-family: 'BMDOHYEON', sans-serif;
 }
 
-/* 전체 HUD 박스 */
+/* ===== HUD ===== */
 #hud {
+  position: absolute;
+  top: 20px;
+  left: 20px;
   width: 420px;
 }
 
-/* 이름 + 로고 */
+/* ===== 네비 ===== */
+#nav-box {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  width: 300px;
+}
+
+/* 네온 박스 */
+.neon-box {
+  border: 2px solid #ffff00;
+  box-shadow: 0 0 10px #ffff00, 0 0 20px #ffff00;
+  padding: 8px;
+  margin-bottom: 10px;
+}
+
+/* 이름 */
 #name {
   display: flex;
   align-items: center;
   gap: 10px;
   font-size: 32px;
-  font-weight: bold;
-  color: #ffff00; /* 네온 노랑 */
-  margin-bottom: 10px;
+  color: #ffff00;
+  text-shadow: 0 0 5px #ffff00, 0 0 10px #ffff00;
 }
 
 #logo {
   width: 40px;
-  height: 40px;
-  object-fit: contain;
 }
 
-/* 멘탈 바 컨테이너 */
+/* 멘탈바 */
 #mental-container {
   width: 400px;
   height: 30px;
-  border: 2px solid #ffffff;
+  border: 2px solid #ffff00;
+  box-shadow: 0 0 10px #ffff00;
   background: #111;
   margin-bottom: 5px;
 }
 
-/* 실제 게이지 */
 #mental-bar {
   height: 100%;
   width: 100%;
@@ -50,72 +69,76 @@ body {
   transition: width 0.1s linear, background 0.3s;
 }
 
-/* 퍼센트 텍스트 */
 #mental-text {
   color: #ffff00;
   font-size: 26px;
-  font-weight: bold;
+  text-shadow: 0 0 5px #ffff00;
   margin-bottom: 8px;
 }
 
-/* 버튼 */
-button {
-  font-size: 18px;
-  padding: 6px 12px;
-  cursor: pointer;
+/* 지도 */
+#map {
+  width: 100%;
+  height: 250px;
 }
 
-/* 2초 깜빡임 */
+/* 깜빡임 */
 @keyframes blinkSlow {
   0% { opacity: 1; }
   50% { opacity: 0.2; }
   100% { opacity: 1; }
 }
+.blink-slow { animation: blinkSlow 2s infinite; }
 
-.blink-slow {
-  animation: blinkSlow 2s infinite;
-}
-
-/* 1초 깜빡임 */
 @keyframes blinkFast {
   0% { opacity: 1; }
   50% { opacity: 0.2; }
   100% { opacity: 1; }
 }
-
-.blink-fast {
-  animation: blinkFast 1s infinite;
-}
+.blink-fast { animation: blinkFast 1s infinite; }
 
 </style>
 </head>
 
 <body>
 
+<!-- HUD -->
 <div id="hud">
 
-  <div id="name">
-    <img src="porori.png" id="logo">
-    포로리왓썰
+  <div class="neon-box">
+    <div id="name">
+      <img src="porori.png" id="logo">
+      포로리왓썰
+    </div>
   </div>
 
   <div id="mental-container">
     <div id="mental-bar"></div>
   </div>
 
-  <div id="mental-text">100%</div>
-
-  <button onclick="recoverMental()">멘탈 회복 +10%</button>
+  <div id="mental-text">100.0%</div>
 
 </div>
 
-<script>
-let mental = 100;
+<!-- 네비 -->
+<div id="nav-box">
+  <div class="neon-box">
+    <div id="map"></div>
+  </div>
+</div>
 
-/* 1분당 0.5% 감소 */
+<!-- Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+/* ===================
+   멘탈 시스템
+=================== */
+let mental = 100;
 const decreasePerMinute = 0.5;
 const decreasePerSecond = decreasePerMinute / 60;
-const decreasePerTick = decreasePerSecond / 10; // 0.1초 단위
+const decreasePerTick = decreasePerSecond / 10;
 
 const mentalBar = document.getElementById("mental-bar");
 const mentalText = document.getElementById("mental-text");
@@ -123,47 +146,75 @@ const mentalText = document.getElementById("mental-text");
 function updateMental() {
   mental -= decreasePerTick;
   if (mental < 0) mental = 0;
-
   updateUI();
-
-  if (mental <= 0) {
-    clearInterval(loop);
-    console.log("멘탈 붕괴 💀");
-  }
 }
 
 function updateUI() {
   mentalBar.style.width = mental + "%";
-  mentalText.innerText = mental.toFixed(2) + "%";
+  mentalText.innerText = mental.toFixed(1) + "%";
 
   mentalBar.classList.remove("blink-slow", "blink-fast");
 
-  if (mental > 80) {
-    mentalBar.style.background = "#00ff00";      // 초록
-  } 
-  else if (mental > 60) {
-    mentalBar.style.background = "#66ff00";      // 연두
-  } 
-  else if (mental > 40) {
-    mentalBar.style.background = "#ffff00";      // 노랑
-  } 
+  if (mental > 80) mentalBar.style.background = "#00ff00";
+  else if (mental > 60) mentalBar.style.background = "#66ff00";
+  else if (mental > 40) mentalBar.style.background = "#ffff00";
   else if (mental > 20) {
-    mentalBar.style.background = "#ff9900";      // 주황
-    mentalBar.classList.add("blink-slow");       // 2초 깜빡임
-  } 
+    mentalBar.style.background = "#ff9900";
+    mentalBar.classList.add("blink-slow");
+  }
   else {
-    mentalBar.style.background = "#ff0000";      // 빨강
-    mentalBar.classList.add("blink-fast");       // 1초 깜빡임
+    mentalBar.style.background = "#ff0000";
+    mentalBar.classList.add("blink-fast");
   }
 }
 
-function recoverMental() {
-  mental += 10;
-  if (mental > 100) mental = 100;
-  updateUI();
-}
+setInterval(updateMental, 100);
 
-const loop = setInterval(updateMental, 100);
+/* ===================
+   회전 네비
+=================== */
+
+const map = L.map('map', {
+  zoomControl: false,
+  attributionControl: false
+}).setView([37.5665, 126.9780], 17);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19
+}).addTo(map);
+
+let marker;
+
+if (navigator.geolocation) {
+  navigator.geolocation.watchPosition(position => {
+
+    const lat = position.coords.latitude;
+    const lon = position.coords.longitude;
+    const heading = position.coords.heading;
+
+    map.setView([lat, lon]);
+
+    if (!marker) {
+      marker = L.circleMarker([lat, lon], {
+        radius: 8,
+        color: "#ffff00",
+        fillColor: "#ffff00",
+        fillOpacity: 1
+      }).addTo(map);
+    } else {
+      marker.setLatLng([lat, lon]);
+    }
+
+    // 🔥 지도 회전
+    if (heading !== null) {
+      document.getElementById("map").style.transform =
+        "rotate(" + (-heading) + "deg)";
+    }
+
+  }, null, {
+    enableHighAccuracy: true
+  });
+}
 </script>
 
 </body>
