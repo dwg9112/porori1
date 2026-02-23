@@ -8,7 +8,7 @@
 
 <style>
 
-/* ===== 전역 배민 폰트 ===== */
+/* ===== 전역 폰트 ===== */
 body, * {
   font-family: 'BMDOHYEON', sans-serif !important;
 }
@@ -19,7 +19,7 @@ body{
   overflow:hidden;
 }
 
-/* ================= HUD ================= */
+/* ================= 멘탈 HUD ================= */
 
 .neon-box{
   border:2px solid #00ff66;
@@ -52,6 +52,7 @@ body{
   height:24px;
   background:#111;
   margin-bottom:6px;
+  cursor:pointer;
 }
 
 #mental-bar{
@@ -65,57 +66,22 @@ body{
   font-size:20px;
 }
 
-/* ================= 원형 게이지 ================= */
+/* ================= 가운데 아래 PNG ================= */
 
 #gauge-wrap{
   position:absolute;
-  bottom:30px;
+  bottom:20px;
   left:50%;
   transform:translateX(-50%);
   width:220px;
   height:220px;
+  pointer-events:none; /* 방송 터치 방해 안 함 */
 }
 
-/* PNG 배경 */
-#gauge-base{
-  position:absolute;
+#gauge-img{
   width:100%;
   height:100%;
   object-fit:contain;
-  pointer-events:none;
-}
-
-/* SVG 게이지 */
-#gauge-svg{
-  position:absolute;
-  width:100%;
-  height:100%;
-  transform:rotate(90deg); /* ⭐ 시작을 5시 방향으로 보정 */
-}
-
-/* 진행 원 */
-#gauge-progress{
-  fill:none;
-  stroke:url(#grad);
-  stroke-width:10;
-  stroke-linecap:round;
-  filter:drop-shadow(0 0 6px #ff7a00)
-         drop-shadow(0 0 12px #ff2fd3);
-  transition:stroke-dashoffset 0.3s linear;
-}
-
-/* 퍼센트 */
-#gauge-text{
-  position:absolute;
-  inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:32px;
-  color:#ff9a00;
-  text-shadow:
-    0 0 8px #ff7a00,
-    0 0 16px #ff2fd3;
 }
 
 </style>
@@ -123,7 +89,7 @@ body{
 
 <body>
 
-<!-- ================= HUD ================= -->
+<!-- ================= 멘탈 HUD ================= -->
 <div id="hud">
   <div class="neon-box" id="hud-box">
     <div id="name">
@@ -139,80 +105,64 @@ body{
   </div>
 </div>
 
-<!-- ================= 원형 게이지 ================= -->
+<!-- ================= 가운데 아래 게이지 이미지 ================= -->
 <div id="gauge-wrap">
-
-  <!-- 네 PNG -->
-  <img src="gauge_base.png" id="gauge-base">
-
-  <!-- SVG 진행 -->
-  <svg id="gauge-svg" viewBox="0 0 200 200">
-
-    <defs>
-      <!-- 🔥 주황 + 핑크 네온 -->
-      <linearGradient id="grad">
-        <stop offset="0%" stop-color="#ff7a00"/>
-        <stop offset="100%" stop-color="#ff2fd3"/>
-      </linearGradient>
-    </defs>
-
-    <circle
-      cx="100"
-      cy="100"
-      r="78"
-      id="gauge-progress"
-      stroke-dasharray="490"
-      stroke-dashoffset="490"
-    />
-  </svg>
-
-  <div id="gauge-text">0%</div>
-
+  <img src="gauge_base_square.png" id="gauge-img">
 </div>
 
 <script>
 
-/* ================= 멘탈 ================= */
+/* ================= 멘탈 시스템 ================= */
 
 let mental = 100;
+
 const decreasePerMinute = 0.5;
 const decreasePerTick = (decreasePerMinute/60)/10;
 
 const mentalBar = document.getElementById("mental-bar");
 const mentalText = document.getElementById("mental-text");
+const mentalContainer = document.getElementById("mental-container");
 
 function updateMental(){
+
   mental -= decreasePerTick;
   if(mental < 0) mental = 0;
 
   mentalBar.style.width = mental + "%";
   mentalText.innerText = mental.toFixed(1) + "%";
+
+  // 색상 단계
+  if (mental > 80) mentalBar.style.background = "#00ff66";
+  else if (mental > 60) mentalBar.style.background = "#66ff00";
+  else if (mental > 40) mentalBar.style.background = "#ffff00";
+  else if (mental > 20) mentalBar.style.background = "#ff9900";
+  else mentalBar.style.background = "#ff0000";
 }
+
 setInterval(updateMental,100);
 
-/* ================= 원형 게이지 ================= */
+/* ✅ 더블탭 회복 +10% */
 
-let gauge = 0;
-const gaugeText = document.getElementById("gauge-text");
-const circle = document.getElementById("gauge-progress");
-const circumference = 490;
+let tapCount = 0;
+let lastTapTime = 0;
 
-/* 🔥 1분에 2% 충전 */
-setInterval(()=>{
-  gauge += 2;
-  if(gauge > 100) gauge = 100;
-  updateGauge();
-}, 60000);
+mentalContainer.addEventListener("click", function(){
 
-function updateGauge(){
+  const now = Date.now();
 
-  const offset = circumference * (1 - gauge/100);
-  circle.style.strokeDashoffset = offset;
-  gaugeText.innerText = Math.floor(gauge) + "%";
-}
+  if(now - lastTapTime < 1000) tapCount++;
+  else tapCount = 1;
 
-updateGauge();
+  lastTapTime = now;
+
+  if(tapCount >= 2){
+    mental += 10;
+    if(mental > 100) mental = 100;
+    tapCount = 0;
+  }
+});
 
 </script>
+
 </body>
 </html>
