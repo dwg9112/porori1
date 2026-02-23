@@ -4,33 +4,42 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>OW Widget</title>
-  <style>
-    html, body { margin: 0; padding: 0; background: transparent; overflow: hidden; }
+<style>
+  html, body { margin: 0; padding: 0; background: transparent; overflow: hidden; }
 
-    #widget {
-      position: fixed;
-      left: 0; right: 0; bottom: 0;
-      height: 180px;
-      pointer-events: none;
-    }
+  #widget {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    height: 360px;           /* 커진 만큼 여유 */
+    pointer-events: none;
+  }
 
-    #left {
-      position: absolute;
-      left: 16px;
-      bottom: 16px;
-      height: 110px;
-      width: auto;
-    }
+  /* 왼쪽 THIS: 2배 */
+  #left {
+    position: absolute;
+    left: 16px;
+    bottom: 16px;
 
-    #center {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      bottom: 16px;
-      height: 110px;
-      width: auto;
-    }
-  </style>
+    height: 110px;           /* 기준 크기 */
+    width: auto;
+
+    transform-origin: left bottom;
+    transform: scale(2);
+  }
+
+  /* 중앙 게이지: 3배 */
+  #center {
+    position: absolute;
+    left: 50%;
+    bottom: 16px;
+
+    height: 110px;           /* 기준 크기 */
+    width: auto;
+
+    transform-origin: center bottom;
+    transform: translateX(-50%) scale(3);
+  }
+</style>
 </head>
 <body>
   <div id="widget">
@@ -70,3 +79,4 @@
   </script>
 </body>
 </html>
+
