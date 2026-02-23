@@ -10,7 +10,7 @@
     #widget{
       position: fixed;
       left: 0; right: 0; bottom: 0;
-      height: 520px;
+      height: 600px;
       pointer-events: none;
     }
 
@@ -49,7 +49,7 @@
       pointer-events: none;
     }
 
-    /* ===== MENTAL 게이지 (THIS 위) ===== */
+    /* ===== MENTAL 게이지 ===== */
     #mentalWrap{
       position: absolute;
       left: 120px;
@@ -70,8 +70,7 @@
       line-height: 1;
     }
 
-    /* 바: 가로 1/2에서 우측으로 5/4 늘림 => 0.625
-       + 왼쪽 2칸 이동 + 아래 1칸 이동 */
+    /* 바 크기/위치 조정 */
     #mentalBar{
       display:flex;
       gap: 3px;
@@ -99,147 +98,122 @@
     }
 
     /* =========================================
-       우측하단 미니맵(가상 네비게이션)
+       🔥 우측하단 네비게이션 미니맵 (150% 확대)
        ========================================= */
-    #minimapWrap{
+    #navWrap{
       position: absolute;
       right: 18px;
       bottom: 18px;
 
-      width: 170px;
-      height: 170px;
+      width: 220px;
+      height: 220px;
 
-      border-radius: 22px;
-      background: rgba(8, 10, 14, 0.45);
+      transform-origin: right bottom;
+      transform: scale(1.5); /* ✅ 150% */
+
+      border-radius: 26px;
+      background: rgba(8, 10, 14, 0.50);
       box-shadow: 0 10px 26px rgba(0,0,0,.35);
       backdrop-filter: blur(3px);
 
-      z-index: 20;
+      z-index: 30;
       pointer-events: none;
-
       overflow: hidden;
     }
 
-    /* 바깥 테두리 느낌 */
-    #minimapWrap::before{
+    #navWrap::before{
       content:"";
       position:absolute;
       inset:0;
-      border-radius: 22px;
+      border-radius: 26px;
       box-shadow:
-        inset 0 0 0 2px rgba(255,255,255,.18),
-        inset 0 0 0 6px rgba(0,0,0,.15);
+        inset 0 0 0 2px rgba(255,255,255,.16),
+        inset 0 0 0 7px rgba(0,0,0,.18);
       pointer-events:none;
     }
 
-    /* 레이더 그리드 */
-    #minimapGrid{
+    /* 지도 영역 */
+    #navMap{
       position:absolute;
-      inset: 10px;
-      border-radius: 16px;
+      inset: 14px;
+      border-radius: 18px;
+      background:
+        repeating-linear-gradient(
+          to bottom,
+          rgba(255,255,255,.06) 0px,
+          rgba(255,255,255,.06) 2px,
+          transparent 2px,
+          transparent 28px
+        );
       overflow:hidden;
-      opacity: .95;
     }
 
-    /* 중앙 십자선 */
-    #minimapGrid::before,
-    #minimapGrid::after{
-      content:"";
+    /* 길(흐르는 느낌) */
+    #road{
       position:absolute;
       left:50%;
-      top:0;
-      width:2px;
-      height:100%;
-      background: rgba(255,255,255,.10);
+      top:-200%;
+      width: 44px;
+      height: 400%;
       transform: translateX(-50%);
-    }
-    #minimapGrid::after{
-      left:0;
-      top:50%;
-      width:100%;
-      height:2px;
-      transform: translateY(-50%);
-    }
-
-    /* 동심원 */
-    .ring{
-      position:absolute;
-      left:50%;
-      top:50%;
-      border: 2px solid rgba(255,255,255,.10);
-      border-radius: 50%;
-      transform: translate(-50%,-50%);
-    }
-
-    /* 플레이어(삼각형) */
-    #player{
-      position:absolute;
-      left:50%;
-      top:50%;
-      width: 0;
-      height: 0;
-      transform: translate(-50%,-50%) rotate(0deg);
-      border-left: 8px solid transparent;
-      border-right: 8px solid transparent;
-      border-bottom: 14px solid rgba(255,255,255,.90);
-      filter: drop-shadow(0 3px 6px rgba(0,0,0,.55));
-    }
-
-    /* 플레이어 주변 점(적/목표 느낌) */
-    .blip{
-      position:absolute;
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: rgba(46, 255, 190, .95);
-      box-shadow: 0 0 10px rgba(46, 255, 190, .55);
+      background: linear-gradient(
+        to bottom,
+        rgba(255,255,255,.25) 0%,
+        rgba(255,255,255,.12) 40%,
+        rgba(255,255,255,.25) 100%
+      );
+      border-radius: 24px;
       opacity: .9;
     }
-    .blip.enemy{
-      background: rgba(255, 80, 80, .95);
-      box-shadow: 0 0 10px rgba(255, 80, 80, .55);
+
+    /* 내 위치 삼각형 */
+    #navPlayer{
+      position:absolute;
+      left:50%;
+      bottom: 26px;
+      width:0;
+      height:0;
+      transform: translateX(-50%);
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-bottom: 18px solid rgba(255,255,255,.95);
+      filter: drop-shadow(0 3px 6px rgba(0,0,0,.55));
+      z-index: 3;
     }
 
-    /* 상단 방향 표시(N) */
-    #minimapNorth{
+    /* 다음 방향 화살표 */
+    #nextTurn{
       position:absolute;
-      top: 6px;
-      left: 50%;
-      transform: translateX(-50%);
+      right: 14px;
+      top: 10px;
       font-family: Arial, sans-serif;
       font-weight: 900;
-      font-size: 12px;
-      letter-spacing: 1px;
-      color: rgba(255,255,255,.85);
-      text-shadow: 0 2px 6px rgba(0,0,0,.65);
-      user-select: none;
-      z-index: 3;
+      font-size: 14px;
+      color: #7CFFB2;
+      text-shadow: 0 2px 6px rgba(0,0,0,.7);
+      letter-spacing: .5px;
     }
 
-    /* 맵 타이틀(옵션) */
-    #minimapTitle{
+    #nextDist{
       position:absolute;
-      bottom: 6px;
-      left: 10px;
+      right: 14px;
+      top: 28px;
       font-family: Arial, sans-serif;
       font-weight: 800;
-      font-size: 11px;
-      letter-spacing: .6px;
-      color: rgba(255,255,255,.75);
-      text-shadow: 0 2px 6px rgba(0,0,0,.65);
-      user-select: none;
-      z-index: 3;
+      font-size: 12px;
+      color: rgba(255,255,255,.85);
+      text-shadow: 0 2px 6px rgba(0,0,0,.7);
     }
   </style>
 </head>
 
 <body>
   <div id="widget">
-    <!-- 왼쪽 THIS + MENTAL -->
+    <!-- 왼쪽 THIS -->
     <div id="leftWrap">
       <img id="leftImg" src="./THIS.png" alt="THIS" />
 
-      <div id="mentalWrap" aria-label="MENTAL gauge">
+      <div id="mentalWrap">
         <div id="mentalLabel">MENTAL</div>
         <div id="mentalBar"></div>
       </div>
@@ -248,148 +222,90 @@
     <!-- 중앙 궁 게이지 -->
     <img id="center" src="./ow_thick_000.png" alt="Gauge" />
 
-    <!-- 우측하단 미니맵 -->
-    <div id="minimapWrap" aria-label="Mini map">
-      <div id="minimapNorth">N</div>
-
-      <div id="minimapGrid">
-        <div class="ring" style="width: 48px; height: 48px;"></div>
-        <div class="ring" style="width: 92px; height: 92px;"></div>
-        <div class="ring" style="width: 130px; height: 130px;"></div>
-
-        <div id="player"></div>
-
-        <!-- 블립(점) 몇 개: JS에서 살짝 움직이게 할 거라 id 부여 -->
-        <div class="blip" id="blip1"></div>
-        <div class="blip" id="blip2"></div>
-        <div class="blip enemy" id="blip3"></div>
-        <div class="blip enemy" id="blip4"></div>
+    <!-- 🔥 네비게이션 미니맵 -->
+    <div id="navWrap">
+      <div id="navMap">
+        <div id="road"></div>
+        <div id="navPlayer"></div>
       </div>
-
-      <div id="minimapTitle">NAV</div>
+      <div id="nextTurn">TURN →</div>
+      <div id="nextDist">120 m</div>
     </div>
   </div>
 
   <script>
     /* ===============================
-       OW 궁 게이지 (30초마다)
+       OW 궁 게이지
        =============================== */
-    const OW_INTERVAL_MS = 30_000;
-    const OW_MIN = 0;
+    const OW_INTERVAL_MS = 30000;
     const OW_MAX = 100;
-
-    const pad3 = (n) => String(n).padStart(3, "0");
-    const owPath = (n) => `./ow_thick_${pad3(n)}.png`;
+    let owIdx = 0;
 
     const centerImg = document.getElementById("center");
+    const pad3 = n => String(n).padStart(3,"0");
 
-    // preload
-    for (let i = OW_MIN; i <= OW_MAX; i++) {
-      const im = new Image();
-      im.src = owPath(i);
-    }
-
-    let owIdx = OW_MIN;
-    function updateOW() {
-      centerImg.src = owPath(owIdx) + `?v=${Date.now()}`;
-      owIdx = (owIdx >= OW_MAX) ? OW_MIN : (owIdx + 1);
+    function updateOW(){
+      centerImg.src = `./ow_thick_${pad3(owIdx)}.png?v=${Date.now()}`;
+      owIdx = (owIdx >= OW_MAX) ? 0 : owIdx + 1;
     }
     updateOW();
     setInterval(updateOW, OW_INTERVAL_MS);
-
 
     /* ===============================
        MENTAL 게이지
        =============================== */
     const MENTAL_TOTAL = 20;
     const MENTAL_INTERVAL_MS = 10 * 60 * 1000;
-
     let mentalOn = MENTAL_TOTAL;
 
     const mentalBar = document.getElementById("mentalBar");
     const mentalSegs = [];
 
-    for (let i = 0; i < MENTAL_TOTAL; i++) {
+    for (let i=0;i<MENTAL_TOTAL;i++){
       const seg = document.createElement("div");
       seg.className = "mentalSeg";
       mentalBar.appendChild(seg);
       mentalSegs.push(seg);
     }
 
-    function getMentalColor(onCount){
-      if (onCount >= 16) return "#20d070"; // 녹색
-      if (onCount >= 12) return "#9BEA4A"; // 연두
-      if (onCount >= 8)  return "#D9B400"; // 짙은 노랑
-      if (onCount >= 4)  return "#FF8A1E"; // 주황
-      return "#FF3B30";                   // 빨강
+    function getMentalColor(n){
+      if (n >= 16) return "#20d070";
+      if (n >= 12) return "#9BEA4A";
+      if (n >= 8) return "#D9B400";
+      if (n >= 4) return "#FF8A1E";
+      return "#FF3B30";
     }
 
-    function renderMental() {
-      const onColor = getMentalColor(mentalOn);
-
-      for (let i = 0; i < MENTAL_TOTAL; i++) {
-        const isOn = i < mentalOn;
-        mentalSegs[i].classList.toggle("off", !isOn);
-        if (isOn) mentalSegs[i].style.backgroundColor = onColor;
-        else mentalSegs[i].style.backgroundColor = "";
+    function renderMental(){
+      const color = getMentalColor(mentalOn);
+      for (let i=0;i<MENTAL_TOTAL;i++){
+        const on = i < mentalOn;
+        mentalSegs[i].classList.toggle("off", !on);
+        mentalSegs[i].style.backgroundColor = on ? color : "";
       }
     }
 
-    function tickMental() {
-      if (mentalOn > 0) mentalOn -= 1;
-      else mentalOn = MENTAL_TOTAL; // 0이면 10분 유지 후 리셋
+    function tickMental(){
+      if (mentalOn > 0) mentalOn--;
+      else mentalOn = MENTAL_TOTAL;
       renderMental();
     }
 
     renderMental();
     setInterval(tickMental, MENTAL_INTERVAL_MS);
 
-
     /* ===============================
-       미니맵(가상 네비) 애니메이션
-       - 플레이어 방향 회전
-       - 블립(점)들이 미세하게 움직이며 레이더 느낌
+       🔥 네비 도로 흐름 애니메이션
        =============================== */
-    const player = document.getElementById("player");
-    const blip1 = document.getElementById("blip1");
-    const blip2 = document.getElementById("blip2");
-    const blip3 = document.getElementById("blip3");
-    const blip4 = document.getElementById("blip4");
-    const grid = document.getElementById("minimapGrid");
+    const road = document.getElementById("road");
+    let roadPos = 0;
 
-    // grid 내부 기준 크기
-    function placeBlip(el, x, y){
-      // x,y: 0~1 (비율)
-      const rect = grid.getBoundingClientRect();
-      const px = rect.width * x;
-      const py = rect.height * y;
-      el.style.left = `${px}px`;
-      el.style.top  = `${py}px`;
-      el.style.transform = "translate(-50%, -50%)";
+    function animateRoad(){
+      roadPos += 0.6;
+      road.style.transform = `translate(-50%, ${roadPos}px)`;
+      requestAnimationFrame(animateRoad);
     }
-
-    // 초기 위치(원 안쪽에 배치)
-    let t0 = Date.now();
-    function animateMinimap(){
-      const t = (Date.now() - t0) / 1000;
-
-      // 플레이어 회전(천천히)
-      const deg = (t * 18) % 360; // 초당 18도
-      player.style.transform = `translate(-50%, -50%) rotate(${deg}deg)`;
-
-      // 블립은 살짝 흔들리는 느낌(원 안쪽)
-      const wob = (a, s) => a + Math.sin(t * s) * 0.03;
-
-      placeBlip(blip1, wob(0.25, 1.3), wob(0.35, 1.1));
-      placeBlip(blip2, wob(0.70, 1.0), wob(0.30, 1.4));
-      placeBlip(blip3, wob(0.35, 0.9), wob(0.75, 1.2));
-      placeBlip(blip4, wob(0.78, 1.1), wob(0.70, 0.8));
-
-      requestAnimationFrame(animateMinimap);
-    }
-
-    // 첫 렌더링 이후 시작
-    requestAnimationFrame(animateMinimap);
+    animateRoad();
   </script>
 </body>
 </html>
