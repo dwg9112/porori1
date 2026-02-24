@@ -6,14 +6,8 @@
 <title>Porori HUD</title>
 
 <style>
-html,body{
-  margin:0;
-  padding:0;
-  background:transparent;
-  overflow:hidden;
-}
+html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
 
-/* 전체 영역 */
 #widget{
   position:fixed;
   left:0; right:0; bottom:0;
@@ -21,9 +15,7 @@ html,body{
   pointer-events:none;
 }
 
-/* ===============================
-   왼쪽 THIS (2배)
-================================ */
+/* ===== 왼쪽 THIS (2배) ===== */
 #leftWrap{
   position:absolute;
   left:16px;
@@ -32,39 +24,31 @@ html,body{
   transform:scale(2);
   z-index:10;
 }
-#leftImg{
-  height:110px;
-  width:auto;
-  display:block;
-}
+#leftImg{ height:110px; width:auto; display:block; }
 
-/* ===============================
-   중앙 궁 게이지
-================================ */
+/* ===== 중앙 궁 게이지 ===== */
 #center{
   position:absolute;
   left:50%;
   bottom:16px;
   height:110px;
+  width:auto;
   transform-origin:center bottom;
   transform:translateX(-50%) scale(2.25);
   z-index:5;
 }
-
-/* 궁 ON GIF */
 #ultOn{
   position:absolute;
   left:50%;
   bottom:16px;
   transform:translateX(-50%);
   height:240px;
+  width:auto;
   display:none;
   z-index:50;
 }
 
-/* ===============================
-   MENTAL 게이지
-================================ */
+/* ===== MENTAL ===== */
 #mentalWrap{
   position:absolute;
   left:120px;
@@ -73,20 +57,28 @@ html,body{
 }
 
 #mentalLabel{
-  font-weight:900;
-  font-size:14px;
-  color:#fff;
-  margin-bottom:4px;
+  font-family: Arial, sans-serif;
+  font-weight: 900;
+  font-size: 14px;
+  letter-spacing: 1px;
+  color: #ffffff;
+  text-shadow: 0 2px 6px rgba(0,0,0,.65);
+  margin: 0 0 4px 0;
+  user-select: none;
+  line-height: 1;
 }
 
+/* 바: (왼쪽 2칸 + 아래 1칸) + 가로 0.625 */
 #mentalBar{
   display:flex;
   gap:3px;
   padding:5px 7px;
   border-radius:10px;
-  background:rgba(0,0,0,.3);
+  background:rgba(0,0,0,.30);
+  backdrop-filter: blur(2px);
+  box-shadow: 0 6px 18px rgba(0,0,0,.25);
   transform-origin:left top;
-  transform:translate(-26px,6px) scaleX(0.625);
+  transform: translate(-26px, 6px) scaleX(0.625);
 }
 
 .mentalSeg{
@@ -94,85 +86,103 @@ html,body{
   height:14px;
   border-radius:4px;
   background:#20d070;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.25);
 }
 .mentalSeg.off{
   background:#f2f2f2;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.15);
 }
 </style>
 </head>
 
 <body>
 <div id="widget">
-
-  <!-- 왼쪽 -->
   <div id="leftWrap">
-    <img id="leftImg" src="./THIS.png"/>
+    <img id="leftImg" src="./THIS.png" alt="THIS"/>
     <div id="mentalWrap">
       <div id="mentalLabel">MENTAL</div>
       <div id="mentalBar"></div>
     </div>
   </div>
 
-  <!-- 중앙 -->
-  <img id="center" src="./ow_thick_000.png"/>
-  <img id="ultOn" src="./On.gif"/>
-
+  <img id="center" src="./ow_thick_000.png" alt="Gauge"/>
+  <img id="ultOn" src="./On.gif" alt="On"/>
 </div>
 
 <script>
 /* ===============================
    OW 궁 루프
+   - 0→100 (30초/칸)
+   - 100% 후 20초 대기
+   - On.gif 10분 재생
+   - 끝나면 0%로 리셋 후 반복
 ================================ */
 const OW_INTERVAL_MS = 30000;
 const ON_DELAY_MS = 20000;
-const ON_DURATION_MS = 10*60*1000;
+const ON_DURATION_MS = 10 * 60 * 1000;
 
 const centerImg = document.getElementById("center");
-const ultOnImg = document.getElementById("ultOn");
+const ultOnImg  = document.getElementById("ultOn");
 
 let owValue = 0;
 let state = "charging";
-let owTimer, onDelayTimer, onDurationTimer;
+let owTimer = null;
+let onDelayTimer = null;
+let onDurationTimer = null;
 
 const pad3 = n => String(n).padStart(3,"0");
 const owPath = n => `./ow_thick_${pad3(n)}.png`;
 
+// preload
+for (let i=0;i<=100;i++){
+  const im = new Image();
+  im.src = owPath(i);
+}
+
 function setOW(n){
-  owValue=n;
-  centerImg.src = owPath(n)+"?v="+Date.now();
+  owValue = Math.max(0, Math.min(100, n));
+  centerImg.src = owPath(owValue) + "?v=" + Date.now();
+}
+
+function showOn(){
+  ultOnImg.style.display = "block";
+  ultOnImg.src = "./On.gif?v=" + Date.now(); // GIF 재시작
+}
+function hideOn(){
+  ultOnImg.style.display = "none";
 }
 
 function startCharging(){
-  state="charging";
-  ultOnImg.style.display="none";
+  state = "charging";
+  hideOn();
   setOW(0);
 
   clearInterval(owTimer);
-  owTimer=setInterval(()=>{
-    if(state!=="charging") return;
+  clearTimeout(onDelayTimer);
+  clearTimeout(onDurationTimer);
 
-    if(owValue<100){
-      setOW(owValue+1);
+  owTimer = setInterval(() => {
+    if (state !== "charging") return;
+
+    if (owValue < 100) setOW(owValue + 1);
+
+    if (owValue >= 100) {
+      state = "waitingOn";
+
+      onDelayTimer = setTimeout(() => {
+        if (state !== "waitingOn") return;
+
+        state = "onPlaying";
+        showOn();
+
+        onDurationTimer = setTimeout(() => {
+          // 10분 끝 -> 다시 0부터
+          startCharging();
+        }, ON_DURATION_MS);
+
+      }, ON_DELAY_MS);
     }
-
-    if(owValue>=100){
-      state="waitingOn";
-
-      clearTimeout(onDelayTimer);
-      onDelayTimer=setTimeout(()=>{
-        state="onPlaying";
-        ultOnImg.style.display="block";
-        ultOnImg.src="./On.gif?v="+Date.now();
-
-        clearTimeout(onDurationTimer);
-        onDurationTimer=setTimeout(()=>{
-          startCharging(); // 🔥 루프 리셋
-        },ON_DURATION_MS);
-
-      },ON_DELAY_MS);
-    }
-
-  },OW_INTERVAL_MS);
+  }, OW_INTERVAL_MS);
 }
 
 startCharging();
@@ -180,44 +190,45 @@ startCharging();
 /* ===============================
    MENTAL 게이지
 ================================ */
-const MENTAL_TOTAL=20;
-let mentalOn=MENTAL_TOTAL;
+const MENTAL_TOTAL = 20;
+const MENTAL_INTERVAL_MS = 10 * 60 * 1000;
+let mentalOn = MENTAL_TOTAL;
 
-const mentalBar=document.getElementById("mentalBar");
-const mentalSegs=[];
+const mentalBar = document.getElementById("mentalBar");
+const mentalSegs = [];
 
-for(let i=0;i<MENTAL_TOTAL;i++){
-  const seg=document.createElement("div");
-  seg.className="mentalSeg";
+for (let i=0;i<MENTAL_TOTAL;i++){
+  const seg = document.createElement("div");
+  seg.className = "mentalSeg";
   mentalBar.appendChild(seg);
   mentalSegs.push(seg);
 }
 
-function getColor(v){
-  if(v>=16) return "#20d070";
-  if(v>=12) return "#9BEA4A";
-  if(v>=8) return "#D9B400";
-  if(v>=4) return "#FF8A1E";
+function getMentalColor(n){
+  if (n >= 16) return "#20d070";
+  if (n >= 12) return "#9BEA4A";
+  if (n >= 8)  return "#D9B400";
+  if (n >= 4)  return "#FF8A1E";
   return "#FF3B30";
 }
 
 function renderMental(){
-  const c=getColor(mentalOn);
-  mentalSegs.forEach((s,i)=>{
-    const on=i<mentalOn;
-    s.classList.toggle("off",!on);
-    s.style.backgroundColor=on?c:"";
-  });
+  const c = getMentalColor(mentalOn);
+  for (let i=0;i<MENTAL_TOTAL;i++){
+    const on = i < mentalOn;
+    mentalSegs[i].classList.toggle("off", !on);
+    mentalSegs[i].style.backgroundColor = on ? c : "";
+  }
 }
 
 function tickMental(){
-  if(mentalOn>0) mentalOn--;
-  else mentalOn=MENTAL_TOTAL;
+  if (mentalOn > 0) mentalOn -= 1;
+  else mentalOn = MENTAL_TOTAL;
   renderMental();
 }
 
 renderMental();
-setInterval(tickMental,10*60*1000);
+setInterval(tickMental, MENTAL_INTERVAL_MS);
 </script>
 </body>
 </html>
