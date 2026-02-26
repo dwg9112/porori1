@@ -81,6 +81,10 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
    - 회전 30초
    - 결과 30초 보여줌
    - 서서히 사라짐 (fade-out)
+   요청 반영:
+   ✅ 색: 빨/주/노/초/파/보 6색
+   ✅ 글씨 크게
+   ✅ "룰렛 START!"만 남기고 나머지 안내 문구 제거
 ========================================================= */
 #rouletteOverlay{
   position:absolute;
@@ -100,8 +104,8 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
   left:50%;
   top:44%;
   transform:translate(-50%, -50%);
-  width:460px;
-  height:460px;
+  width:520px;     /* 조금 키움 */
+  height:520px;
 }
 
 #rouletteTitle{
@@ -111,30 +115,19 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
   transform:translateX(-50%);
   font-family: Arial, sans-serif;
   font-weight: 900;
-  font-size: 28px;
+  font-size: 34px;
   letter-spacing: 1px;
   color: rgba(255,255,255,.95);
   text-shadow: 0 10px 30px rgba(0,0,0,.55), 0 0 18px rgba(255,255,255,.25);
   white-space:nowrap;
 }
 
-#rouletteHint{
-  position:absolute;
-  left:50%;
-  top:-28px;
-  transform:translateX(-50%);
-  font-family: Arial, sans-serif;
-  font-weight: 800;
-  font-size: 13px;
-  letter-spacing: .6px;
-  color: rgba(255,255,255,.85);
-  text-shadow: 0 6px 18px rgba(0,0,0,.5);
-  white-space:nowrap;
-}
+/* ✅ 힌트/설명 문구 제거 */
+#rouletteHint{ display:none !important; }
 
 #rouletteCanvas{
-  width:460px;
-  height:460px;
+  width:520px;
+  height:520px;
   display:block;
   filter: drop-shadow(0 20px 55px rgba(0,0,0,.45));
 }
@@ -146,9 +139,9 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
   top:-8px;
   transform:translateX(-50%);
   width:0; height:0;
-  border-left: 16px solid transparent;
-  border-right: 16px solid transparent;
-  border-bottom: 28px solid rgba(255,255,255,.95);
+  border-left: 18px solid transparent;
+  border-right: 18px solid transparent;
+  border-bottom: 32px solid rgba(255,255,255,.95);
   filter: drop-shadow(0 8px 18px rgba(0,0,0,.55));
 }
 
@@ -156,20 +149,20 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
 #rouletteResult{
   position:absolute;
   left:50%;
-  bottom:-84px;
+  bottom:-92px;
   transform:translateX(-50%);
-  min-width: 360px;
+  min-width: 380px;
   padding: 14px 18px;
   border-radius: 16px;
 
   font-family: Arial, sans-serif;
   font-weight: 900;
-  font-size: 18px;
+  font-size: 22px;      /* ✅ 결과 글씨도 크게 */
   letter-spacing: .5px;
   color: rgba(255,255,255,.95);
   text-align:center;
 
-  background: linear-gradient(180deg, rgba(0,255,255,.18), rgba(255,0,200,.12));
+  background: rgba(0,0,0,.55);
   box-shadow: 0 18px 48px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.18);
   text-shadow: 0 10px 25px rgba(0,0,0,.55);
   display:none;
@@ -177,14 +170,13 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
 
 #rouletteGlow{
   position:absolute;
-  inset:-30px;
+  inset:-34px;
   border-radius: 999px;
-  background: radial-gradient(circle, rgba(0,255,255,.16), rgba(255,0,200,.10) 35%, rgba(0,0,0,0) 70%);
+  background: radial-gradient(circle, rgba(255,255,255,.10), rgba(0,0,0,0) 70%);
   filter: blur(2px);
   z-index:-1;
 }
 
-/* (옵션) 아주 살짝 흔들리는 느낌 */
 @keyframes divaPop {
   0%   { transform:translate(-50%, -50%) scale(1); }
   35%  { transform:translate(-50%, -50%) scale(1.02); }
@@ -218,9 +210,8 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
     <div id="rouletteWrap">
       <div id="rouletteGlow"></div>
       <div id="rouletteTitle">룰렛 START!</div>
-      <div id="rouletteHint">30초 회전 → 30초 결과 + 음성 → 서서히 사라짐</div>
       <div id="roulettePointer"></div>
-      <canvas id="rouletteCanvas" width="460" height="460"></canvas>
+      <canvas id="rouletteCanvas" width="520" height="520"></canvas>
       <div id="rouletteResult"></div>
     </div>
   </div>
@@ -229,10 +220,7 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
 
 <script>
 /* =========================================================
-   🔊 "D.Va 느낌" 여성 TTS (가능한 범위에서)
-   - 한국어 음성 중 "여성/소녀" 키워드 우선 선택
-   - pitch(톤) 높게, rate(속도) 살짝 빠르게
-   - 디바처럼 톡톡 튀는 느낌으로 문장 사이 짧은 쉼도 넣음
+   🔊 "D.Va 느낌" 여성 TTS
 ========================================================= */
 let divaVoice = null;
 
@@ -240,19 +228,11 @@ function chooseDivaVoice(){
   if (!("speechSynthesis" in window)) return null;
   const voices = window.speechSynthesis.getVoices();
 
-  // 1) ko + 여성 키워드 (이름에 female/woman/girl 등 포함)
   let v =
     voices.find(x => (x.lang||"").toLowerCase().startsWith("ko") && /(female|woman|girl)/i.test(x.name)) ||
-
-    // 2) ko + 흔한 여성 이름/표기 (환경마다 다름)
-    voices.find(x => (x.lang||"").toLowerCase().startsWith("ko") && /(여|여성|소녀|지은|서연|유나|sora|yuna|jiy|ji|sun|seo)/i.test(x.name)) ||
-
-    // 3) ko 아무거나
+    voices.find(x => (x.lang||"").toLowerCase().startsWith("ko") && /(여|여성|소녀|yuna|sora|seo|ji)/i.test(x.name)) ||
     voices.find(x => (x.lang||"").toLowerCase().startsWith("ko")) ||
-
-    // 4) 마지막 fallback: 아무 female
     voices.find(x => /(female|woman|girl)/i.test(x.name)) ||
-
     null;
 
   return v || null;
@@ -261,11 +241,8 @@ function chooseDivaVoice(){
 function ensureVoiceReady(){
   try{
     if (!("speechSynthesis" in window)) return;
-
-    // iOS/크롬 일부는 getVoices가 비어있다가 이벤트 후 채워짐
     const tryPick = () => { divaVoice = chooseDivaVoice(); };
     tryPick();
-
     if (!divaVoice){
       window.speechSynthesis.onvoiceschanged = () => {
         divaVoice = chooseDivaVoice();
@@ -273,32 +250,25 @@ function ensureVoiceReady(){
     }
   }catch(e){}
 }
-
 ensureVoiceReady();
 
 function speakDiva(text){
   try{
     if (!("speechSynthesis" in window)) return;
-
     const synth = window.speechSynthesis;
     synth.cancel();
 
     const u = new SpeechSynthesisUtterance(text);
     u.lang = "ko-KR";
-
-    // 🎀 디바 느낌 튜닝 (더 과감)
-    u.rate = 1.18;   // 좀 더 빠르게
-    u.pitch = 1.45;  // 더 소녀 느낌
+    u.rate = 1.18;
+    u.pitch = 1.45;
     u.volume = 1.0;
 
-    // 선택된 음성 적용(가능하면)
     if (!divaVoice) divaVoice = chooseDivaVoice();
     if (divaVoice) u.voice = divaVoice;
 
     synth.speak(u);
-  }catch(e){
-    // 위젯/브라우저 정책으로 막힐 수 있음
-  }
+  }catch(e){}
 }
 
 /* =========================================================
@@ -308,12 +278,10 @@ function speakDiva(text){
    - 그 이후 On.gif 10분 재생
    - 끝나면 0%로 리셋 후 반복
    + On.gif 시작 순간 🎡 룰렛 30초 스핀
-     → 결과 30초 표시(음성)
-     → fade-out 종료
 ========================================================= */
-const OW_INTERVAL_MS = 50_000;         // 50초/1%
-const HOLD_100_MS    = 30_000;         // 100% 유지 30초
-const ON_DURATION_MS = 10 * 60 * 1000; // On 10분
+const OW_INTERVAL_MS = 50_000;
+const HOLD_100_MS    = 30_000;
+const ON_DURATION_MS = 10 * 60 * 1000;
 
 const centerImg = document.getElementById("center");
 const ultOnImg  = document.getElementById("ultOn");
@@ -321,7 +289,6 @@ const ultOnImg  = document.getElementById("ultOn");
 const pad3  = (n) => String(n).padStart(3,"0");
 const owPath = (n) => `./ow_thick_${pad3(n)}.png`;
 
-// preload
 for (let i=0;i<=100;i++){
   const im = new Image();
   im.src = owPath(i);
@@ -350,7 +317,6 @@ function clearOWTimers(){
 
 function startOWLoop(){
   clearOWTimers();
-
   owValue = 0;
   hideOn();
   setOW(0);
@@ -366,7 +332,7 @@ function startOWLoop(){
 
       holdTimer = setTimeout(() => {
         showOn();
-        startRouletteSpin(); // On 시작과 동시에 룰렛 시작
+        startRouletteSpin();
 
         onTimer = setTimeout(() => {
           hideOn();
@@ -420,15 +386,25 @@ renderMental();
 setInterval(tickMental, MENTAL_INTERVAL_MS);
 
 /* =========================================================
-   🎡 룰렛 (30초 회전 → 결과 30초 + 음성 → fade-out)
+   🎡 룰렛 (요청 반영: RGB + 글씨 크게)
 ========================================================= */
 const rouletteItems = [
   "골반댄스",
   "포켓몬댄스",
   "터미널댄스",
-  "관제탑 댄스",
-  "1분간 애교 타임",
-  "사쿠란보 댄스",
+  "관제탑댄스",
+  "애교 타임",
+  "사쿠란보댄스",
+];
+
+// ✅ 빨/주/노/초/파/보
+const rouletteColors = [
+  "#FF3B30", // 빨
+  "#FF9500", // 주
+  "#FFD60A", // 노
+  "#34C759", // 초
+  "#0A84FF", // 파
+  "#AF52DE", // 보
 ];
 
 const rouletteOverlay = document.getElementById("rouletteOverlay");
@@ -463,13 +439,13 @@ function drawWheel(angle){
 
   rctx.clearRect(0,0,w,h);
 
-  const glow = rctx.createRadialGradient(cx,cy,R*0.2, cx,cy,R*1.15);
-  glow.addColorStop(0, "rgba(0,255,255,0.18)");
-  glow.addColorStop(0.5, "rgba(255,0,200,0.12)");
-  glow.addColorStop(1, "rgba(0,0,0,0)");
+  // 바깥 글로우
+  const glow = rctx.createRadialGradient(cx,cy,R*0.2, cx,cy,R*1.18);
+  glow.addColorStop(0, "rgba(255,255,255,0.10)");
+  glow.addColorStop(0.6, "rgba(0,0,0,0)");
   rctx.fillStyle = glow;
   rctx.beginPath();
-  rctx.arc(cx,cy,R*1.15,0,Math.PI*2);
+  rctx.arc(cx,cy,R*1.18,0,Math.PI*2);
   rctx.fill();
 
   rctx.save();
@@ -483,42 +459,49 @@ function drawWheel(angle){
     const a0 = i*slice;
     const a1 = a0 + slice;
 
+    // 섹션
     rctx.beginPath();
     rctx.moveTo(0,0);
     rctx.arc(0,0,R,a0,a1);
     rctx.closePath();
-    rctx.fillStyle = (i%2===0) ? "rgba(0,255,255,0.22)" : "rgba(255,0,200,0.16)";
+    rctx.fillStyle = rouletteColors[i % rouletteColors.length];
+    rctx.globalAlpha = 0.92;
     rctx.fill();
+    rctx.globalAlpha = 1;
 
-    rctx.strokeStyle = "rgba(255,255,255,0.22)";
-    rctx.lineWidth = 2;
+    // 경계선
+    rctx.strokeStyle = "rgba(255,255,255,0.45)";
+    rctx.lineWidth = 3;
     rctx.stroke();
 
+    // ✅ 글씨 크게 + 더 바깥으로
     const mid = (a0+a1)/2;
     rctx.save();
     rctx.rotate(mid);
-    rctx.translate(R*0.62, 0);
+    rctx.translate(R*0.70, 0);
     rctx.rotate(Math.PI/2);
-    rctx.font = "900 18px Arial";
-    rctx.fillStyle = "rgba(255,255,255,0.95)";
-    rctx.shadowColor = "rgba(0,0,0,0.55)";
-    rctx.shadowBlur = 10;
+
+    rctx.font = "900 24px Arial";  // ✅ 크게
+    rctx.fillStyle = "rgba(255,255,255,0.98)";
+    rctx.shadowColor = "rgba(0,0,0,0.65)";
+    rctx.shadowBlur = 14;
     rctx.textAlign = "center";
     rctx.textBaseline = "middle";
     rctx.fillText(rouletteItems[i], 0, 0);
     rctx.restore();
   }
 
+  // 가운데 원
   rctx.beginPath();
   rctx.arc(0,0,R*0.22,0,Math.PI*2);
-  rctx.fillStyle = "rgba(10,10,14,0.70)";
+  rctx.fillStyle = "rgba(0,0,0,0.70)";
   rctx.fill();
-  rctx.strokeStyle = "rgba(255,255,255,0.22)";
-  rctx.lineWidth = 2;
+  rctx.strokeStyle = "rgba(255,255,255,0.40)";
+  rctx.lineWidth = 3;
   rctx.stroke();
 
-  rctx.font = "900 16px Arial";
-  rctx.fillStyle = "rgba(255,255,255,0.92)";
+  rctx.font = "900 18px Arial";
+  rctx.fillStyle = "rgba(255,255,255,0.95)";
   rctx.shadowColor = "rgba(0,0,0,0.55)";
   rctx.shadowBlur = 12;
   rctx.textAlign = "center";
@@ -527,10 +510,11 @@ function drawWheel(angle){
 
   rctx.restore();
 
+  // 바깥 테두리
   rctx.beginPath();
   rctx.arc(cx,cy,R,0,Math.PI*2);
-  rctx.strokeStyle = "rgba(255,255,255,0.26)";
-  rctx.lineWidth = 3;
+  rctx.strokeStyle = "rgba(255,255,255,0.35)";
+  rctx.lineWidth = 4;
   rctx.stroke();
 }
 
@@ -544,7 +528,6 @@ function startRouletteSpin(){
   rouletteResult.style.display = "none";
   rouletteResult.textContent = "";
 
-  // 팝 애니메이션(디바 느낌)
   rouletteWrap.classList.remove("pop");
   void rouletteWrap.offsetWidth;
   rouletteWrap.classList.add("pop");
@@ -559,7 +542,7 @@ function startRouletteSpin(){
   const winnerMid = (winnerIndex + 0.5) * slice;
 
   const baseTarget = -winnerMid;
-  const extraTurns = 20 + Math.floor(Math.random()*6); // 조금 더 "호들갑" 돌기
+  const extraTurns = 20 + Math.floor(Math.random()*6);
   const startAngle = currentAngle;
   targetAngle = baseTarget + extraTurns * Math.PI * 2;
 
@@ -582,7 +565,6 @@ function startRouletteSpin(){
       rouletteResult.textContent = `당첨: ${resultText}`;
       rouletteResult.style.display = "block";
 
-      // ✅ 디바 느낌 문장(짧은 쉼표로 톡톡)
       speakDiva(`포로리 궁 준비 완료!  ${resultText}!  시동, 거는중!`);
 
       rouletteFadeTimer = setTimeout(() => {
