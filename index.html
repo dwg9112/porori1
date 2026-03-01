@@ -78,9 +78,6 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
 
 /* =========================================================
    🎰 레버 오버레이
-   - 레버 내려감(자동) → 당첨 표시
-   - 결과 30초 보여줌
-   - 서서히 사라짐 (fade-out)
 ========================================================= */
 #rouletteOverlay{
   position:absolute;
@@ -100,176 +97,311 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
   left:50%;
   top:44%;
   transform:translate(-50%, -50%);
-  width:520px;
-  height:520px;
+  width:560px;
+  height:560px;
 }
-
-#rouletteTitle{
-  position:absolute;
-  left:50%;
-  top:-64px;
-  transform:translateX(-50%);
-  font-family: Arial, sans-serif;
-  font-weight: 900;
-  font-size: 34px;
-  letter-spacing: 1px;
-  color: rgba(255,255,255,.95);
-  text-shadow: 0 10px 30px rgba(0,0,0,.55), 0 0 18px rgba(255,255,255,.25);
-  white-space:nowrap;
-}
-
-/* ✅ 힌트/설명 문구 제거 */
-#rouletteHint{ display:none !important; }
 
 #rouletteGlow{
   position:absolute;
-  inset:-34px;
+  inset:-40px;
   border-radius: 999px;
-  background: radial-gradient(circle, rgba(255,255,255,.10), rgba(0,0,0,0) 70%);
+  background: radial-gradient(circle, rgba(255,255,255,.12), rgba(0,0,0,0) 70%);
   filter: blur(2px);
   z-index:-1;
 }
 
-/* 결과 카드 */
-#rouletteResult{
+/* ✅ 타이틀: "룰렛" 검정 / "START!" 초록 / "당겨요!" 빨강 */
+#rouletteTitle{
   position:absolute;
   left:50%;
-  bottom:-92px;
+  top:-78px;
   transform:translateX(-50%);
-  min-width: 380px;
-  padding: 14px 18px;
-  border-radius: 16px;
-
   font-family: Arial, sans-serif;
   font-weight: 900;
-  font-size: 22px;
-  letter-spacing: .5px;
+  font-size: 38px;
+  letter-spacing: 1px;
   color: rgba(255,255,255,.95);
-  text-align:center;
+  text-shadow: 0 10px 30px rgba(0,0,0,.55), 0 0 18px rgba(255,255,255,.18);
+  white-space:nowrap;
+  display:flex;
+  align-items:baseline;
+  gap:12px;
+}
+#rouletteTitle .r{
+  color: rgba(0,0,0,.88); /* 룰렛: 검정 */
+  text-shadow: 0 12px 28px rgba(0,0,0,.55), 0 0 10px rgba(255,255,255,.12);
+}
+#rouletteTitle .s{
+  color: #23e06b; /* START!: 초록 */
+  text-shadow: 0 12px 28px rgba(0,0,0,.55), 0 0 16px rgba(35,224,107,.35);
+}
 
-  background: rgba(0,0,0,.55);
-  box-shadow: 0 18px 48px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.18);
-  text-shadow: 0 10px 25px rgba(0,0,0,.55);
-  display:none;
+#rouletteSub{
+  position:absolute;
+  left:50%;
+  top:-24px;
+  transform:translateX(-50%);
+  font-family: Arial, sans-serif;
+  font-weight: 900;
+  font-size: 26px;
+  letter-spacing: 1px;
+  color: #ff3b30; /* 당겨요!: 빨강 */
+  text-shadow: 0 12px 28px rgba(0,0,0,.55), 0 0 18px rgba(255,59,48,.25);
+  white-space:nowrap;
 }
 
 /* =========================
-   🎰 레버 머신 (슬롯 느낌)
+   🎰 아케이드 레버 머신(더 게임장 느낌)
 ========================= */
 #leverMachine{
-  width:520px;
-  height:520px;
+  width:560px;
+  height:560px;
   position:relative;
 }
 
-#leverTopText{
+/* 본체 */
+#arcadeCabinet{
+  position:absolute;
+  left:50%;
+  top:54%;
+  transform:translate(-50%,-50%);
+  width:520px;
+  height:360px;
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 35% 20%, rgba(255,255,255,.22), rgba(255,255,255,0) 55%),
+    linear-gradient(to bottom, rgba(30,30,30,.92), rgba(10,10,10,.92));
+  box-shadow:
+    0 30px 80px rgba(0,0,0,.55),
+    inset 0 0 0 2px rgba(255,255,255,.10),
+    inset 0 0 0 10px rgba(0,0,0,.25);
+  overflow:hidden;
+}
+
+#arcadeBezel{
+  position:absolute;
+  inset:18px;
+  border-radius: 22px;
+  background:
+    linear-gradient(to bottom, rgba(255,255,255,.06), rgba(255,255,255,0)),
+    rgba(0,0,0,.28);
+  box-shadow:
+    inset 0 0 0 2px rgba(255,255,255,.10),
+    inset 0 0 0 10px rgba(0,0,0,.22);
+}
+
+/* 릴(글씨 돌아가는 창) */
+#reelWindow{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-55%,-50%);
+  width:320px;
+  height:140px;
+  border-radius: 18px;
+  background: rgba(0,0,0,.55);
+  box-shadow:
+    0 18px 45px rgba(0,0,0,.45),
+    inset 0 0 0 2px rgba(255,255,255,.14),
+    inset 0 0 0 10px rgba(0,0,0,.28);
+  overflow:hidden;
+}
+
+#reelScanline{
+  position:absolute;
+  inset:0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255,255,255,.05) 0px,
+    rgba(255,255,255,.05) 2px,
+    rgba(0,0,0,0) 6px,
+    rgba(0,0,0,0) 12px
+  );
+  mix-blend-mode: overlay;
+  opacity:.25;
+  pointer-events:none;
+}
+
+#reelHighlight{
+  position:absolute;
+  left:12px; right:12px;
+  top:50%;
+  transform:translateY(-50%);
+  height:56px;
+  border-radius: 14px;
+  box-shadow:
+    inset 0 0 0 2px rgba(35,224,107,.35),
+    0 0 18px rgba(35,224,107,.22);
+  background: linear-gradient(to bottom, rgba(35,224,107,.10), rgba(0,0,0,0));
+  pointer-events:none;
+}
+
+#reelClip{
+  position:absolute;
+  inset:14px;
+  border-radius: 14px;
+  overflow:hidden;
+}
+
+#reelInner{
+  position:absolute;
+  left:0; top:0; right:0;
+  will-change: transform;
+}
+
+.reelItem{
+  height:56px;               /* 고정 높이 (JS에서도 사용) */
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family: Arial, sans-serif;
+  font-weight: 900;
+  font-size: 34px;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,.96);
+  text-shadow: 0 12px 28px rgba(0,0,0,.65);
+  white-space:nowrap;
+}
+
+/* 장식 라이트 */
+#sideLights{
+  position:absolute;
+  left:16px;
+  top:20px;
+  bottom:20px;
+  width:42px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  opacity:.95;
+}
+.lightDot{
+  width:18px; height:18px;
+  border-radius:999px;
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(255,255,255,.15) 45%, rgba(0,0,0,.35) 100%);
+  box-shadow: 0 10px 20px rgba(0,0,0,.35), 0 0 18px rgba(35,224,107,.14);
+  margin-left:10px;
+  animation: blink 1.6s infinite ease-in-out;
+}
+.lightDot:nth-child(2){ animation-delay:.2s; }
+.lightDot:nth-child(3){ animation-delay:.4s; }
+.lightDot:nth-child(4){ animation-delay:.6s; }
+.lightDot:nth-child(5){ animation-delay:.8s; }
+.lightDot:nth-child(6){ animation-delay:1.0s; }
+.lightDot:nth-child(7){ animation-delay:1.2s; }
+.lightDot:nth-child(8){ animation-delay:1.4s; }
+
+@keyframes blink{
+  0%,100%{ filter:brightness(1); opacity:.85; }
+  50%{ filter:brightness(1.35); opacity:1; }
+}
+
+/* 레버(더 이쁘게) */
+#leverAssembly{
+  position:absolute;
+  right:34px;
+  top:50%;
+  transform:translateY(-50%);
+  width:110px;
+  height:300px;
+  filter: drop-shadow(0 18px 28px rgba(0,0,0,.45));
+}
+#leverTrack{
   position:absolute;
   left:50%;
   top:18px;
   transform:translateX(-50%);
-  font-family: Arial, sans-serif;
-  font-weight: 900;
-  font-size: 28px;
-  letter-spacing: 1px;
-  color: rgba(255,255,255,.95);
-  text-shadow: 0 10px 30px rgba(0,0,0,.55);
-}
-
-#leverBody{
-  position:absolute;
-  left:50%;
-  top:56%;
-  transform:translate(-50%,-50%);
-  width:520px;
-  height:520px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-#leverWindow{
-  position:absolute;
-  left:50%;
-  top:50%;
-  transform:translate(-50%,-50%);
-  width:380px;
-  height:220px;
-  border-radius: 26px;
-  background: rgba(0,0,0,.55);
-  box-shadow: 0 22px 60px rgba(0,0,0,.45), inset 0 0 0 2px rgba(255,255,255,.18);
-  overflow:hidden;
-}
-
-#leverShine{
-  position:absolute;
-  inset:-40px;
-  background: radial-gradient(circle at 30% 20%, rgba(255,255,255,.18), rgba(255,255,255,0) 55%);
-  transform: rotate(12deg);
-}
-
-#leverWinner{
-  position:absolute;
-  inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-
-  font-family: Arial, sans-serif;
-  font-weight: 900;
-  font-size: 44px;              /* 크게 */
-  letter-spacing: 1px;
-  color: rgba(255,255,255,.98);
-  text-shadow: 0 12px 30px rgba(0,0,0,.6);
-  padding: 0 18px;
-  text-align:center;
-  white-space:nowrap;
+  width:28px;
+  height:264px;
+  border-radius: 999px;
+  background:
+    linear-gradient(to bottom, rgba(255,255,255,.25), rgba(255,255,255,.04)),
+    rgba(0,0,0,.25);
+  box-shadow:
+    inset 0 0 0 2px rgba(255,255,255,.10),
+    inset 0 0 0 10px rgba(0,0,0,.20);
 }
 
 #leverRod{
   position:absolute;
-  right:18px;
-  top:86px;
-  width:40px;
-  height:340px;
-  display:flex;
-  align-items:flex-start;
-  justify-content:center;
+  left:50%;
+  top:0;
+  transform:translateX(-50%);
+  width:60px;
+  height:300px;
   transform-origin: 50% 0%;
-  filter: drop-shadow(0 16px 28px rgba(0,0,0,.45));
 }
-
 #leverRod::before{
   content:"";
   position:absolute;
-  top:32px;
-  width:14px;
-  height:260px;
+  left:50%;
+  top:28px;
+  transform:translateX(-50%);
+  width:12px;
+  height:210px;
   border-radius: 999px;
-  background: linear-gradient(to bottom, rgba(255,255,255,.65), rgba(255,255,255,.18));
+  background: linear-gradient(to bottom, rgba(255,255,255,.75), rgba(255,255,255,.18));
   box-shadow: inset 0 0 0 1px rgba(0,0,0,.18);
 }
-
 #leverKnob{
   position:absolute;
+  left:50%;
   top:0;
-  width:44px;
-  height:44px;
+  transform:translateX(-50%);
+  width:52px;
+  height:52px;
   border-radius:999px;
-  background: radial-gradient(circle at 30% 25%, rgba(255,255,255,.95), rgba(255,255,255,.15) 35%, rgba(0,0,0,.25) 100%);
-  box-shadow: 0 14px 26px rgba(0,0,0,.45), inset 0 0 0 2px rgba(255,255,255,.22);
+  background:
+    radial-gradient(circle at 30% 25%, rgba(255,255,255,.95), rgba(255,255,255,.18) 35%, rgba(0,0,0,.30) 100%),
+    radial-gradient(circle at 60% 70%, rgba(255,59,48,.65), rgba(255,59,48,0) 62%);
+  box-shadow: 0 16px 30px rgba(0,0,0,.45), inset 0 0 0 2px rgba(255,255,255,.22);
 }
 
-/* 레버 당기기 애니메이션 */
-@keyframes leverPull {
-  0%   { transform: translateY(0) rotate(0deg); }
-  55%  { transform: translateY(150px) rotate(8deg); }
-  72%  { transform: translateY(150px) rotate(8deg); }
-  100% { transform: translateY(0) rotate(0deg); }
+/* ✅ 10초 후 1초 동안 내려감 */
+@keyframes leverPullDown {
+  0%   { transform: translateX(-50%) translateY(0) rotate(0deg); }
+  65%  { transform: translateX(-50%) translateY(170px) rotate(10deg); }
+  100% { transform: translateX(-50%) translateY(170px) rotate(10deg); }
 }
-#leverRod.pull{
-  animation: leverPull 950ms cubic-bezier(.2,.9,.2,1);
+@keyframes leverReturnUp {
+  0%   { transform: translateX(-50%) translateY(170px) rotate(10deg); }
+  100% { transform: translateX(-50%) translateY(0) rotate(0deg); }
+}
+#leverRod.pullDown{ animation: leverPullDown 1000ms cubic-bezier(.2,.9,.2,1) forwards; }
+#leverRod.returnUp{ animation: leverReturnUp 520ms cubic-bezier(.2,.8,.2,1) forwards; }
+
+/* 폭죽(양옆) */
+.fireworks{
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  width:240px;
+  height:240px;
+  pointer-events:none;
+  display:none;
+  z-index:5;
+}
+#fwLeft{ left:-40px; }
+#fwRight{ right:-40px; }
+
+.particle{
+  position:absolute;
+  left:50%; top:50%;
+  width:10px; height:10px;
+  border-radius:999px;
+  transform:translate(-50%,-50%);
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(255,255,255,.2) 45%, rgba(0,0,0,.25) 100%);
+  box-shadow: 0 10px 24px rgba(0,0,0,.35);
+  opacity:0;
 }
 
+@keyframes burst {
+  0%   { transform:translate(-50%,-50%) scale(0.6); opacity:0; }
+  10%  { opacity:1; }
+  100% { transform:translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1); opacity:0; }
+}
+
+/* 팝 */
 @keyframes divaPop {
   0%   { transform:translate(-50%, -50%) scale(1); }
   35%  { transform:translate(-50%, -50%) scale(1.02); }
@@ -302,25 +434,46 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
   <div id="rouletteOverlay" class="bg">
     <div id="rouletteWrap">
       <div id="rouletteGlow"></div>
-      <div id="rouletteTitle">룰렛 START!</div>
 
-      <!-- 룰렛 대신 레버 머신 -->
+      <div id="rouletteTitle">
+        <span class="r">룰렛</span>
+        <span class="s">START!</span>
+      </div>
+      <div id="rouletteSub">당겨요!</div>
+
       <div id="leverMachine">
-        <div id="leverTopText">PULL!</div>
+        <!-- 폭죽 -->
+        <div id="fwLeft" class="fireworks"></div>
+        <div id="fwRight" class="fireworks"></div>
 
-        <div id="leverBody">
-          <div id="leverWindow">
-            <div id="leverShine"></div>
-            <div id="leverWinner">READY</div>
+        <!-- 본체 -->
+        <div id="arcadeCabinet">
+          <div id="arcadeBezel"></div>
+
+          <div id="sideLights" aria-hidden="true">
+            <div class="lightDot"></div><div class="lightDot"></div><div class="lightDot"></div><div class="lightDot"></div>
+            <div class="lightDot"></div><div class="lightDot"></div><div class="lightDot"></div><div class="lightDot"></div>
           </div>
 
-          <div id="leverRod">
-            <div id="leverKnob"></div>
+          <!-- 릴 창 -->
+          <div id="reelWindow">
+            <div id="reelClip">
+              <div id="reelInner"></div>
+            </div>
+            <div id="reelHighlight"></div>
+            <div id="reelScanline"></div>
+          </div>
+
+          <!-- 레버 -->
+          <div id="leverAssembly">
+            <div id="leverTrack"></div>
+            <div id="leverRod">
+              <div id="leverKnob"></div>
+            </div>
           </div>
         </div>
-
-        <div id="rouletteResult"></div>
       </div>
+
     </div>
   </div>
 
@@ -401,19 +554,16 @@ function unlockAudio(){
     ctx.resume().catch(()=>{});
   }
 }
-
-// “최초 1회” 사용자 제스처로 오디오 잠금 해제 시도
 window.addEventListener("pointerdown", unlockAudio, { once:true });
 window.addEventListener("keydown", unlockAudio, { once:true });
 
 function clickSound({ t=0, pitch=900, dur=0.035, gain=0.22 } = {}){
   const ctx = getAudioCtx();
   if (!ctx) return;
-  if (ctx.state === "suspended") return; // 잠금 상태면 조용히 패스
+  if (ctx.state === "suspended") return;
 
   const now = ctx.currentTime + t;
 
-  // 아주 짧은 톡(클릭) + 살짝의 노이즈로 '딸깍' 느낌
   const o = ctx.createOscillator();
   const g = ctx.createGain();
 
@@ -429,12 +579,11 @@ function clickSound({ t=0, pitch=900, dur=0.035, gain=0.22 } = {}){
   o.start(now);
   o.stop(now + dur);
 
-  // 미세한 '딱' 노이즈
+  // 아주 짧은 노이즈(딱!)
   const bufferSize = Math.floor(ctx.sampleRate * 0.02);
   const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
   const data = buffer.getChannelData(0);
   for (let i=0;i<bufferSize;i++){
-    // 초반만 강하고 급격히 감쇠
     const decay = Math.exp(-i / (bufferSize * 0.18));
     data[i] = (Math.random()*2 - 1) * 0.22 * decay;
   }
@@ -449,14 +598,14 @@ function clickSound({ t=0, pitch=900, dur=0.035, gain=0.22 } = {}){
 }
 
 function leverClickPattern(){
-  // 당길 때: 여러 번 딸깍딸깍
-  clickSound({ t: 0.00, pitch: 1050, gain: 0.20, dur: 0.030 });
-  clickSound({ t: 0.10, pitch: 980,  gain: 0.18, dur: 0.030 });
-  clickSound({ t: 0.22, pitch: 900,  gain: 0.18, dur: 0.032 });
+  // 당길 때: 딸깍딸깍
+  clickSound({ t: 0.00, pitch: 1050, gain: 0.18, dur: 0.030 });
+  clickSound({ t: 0.12, pitch: 980,  gain: 0.17, dur: 0.030 });
+  clickSound({ t: 0.24, pitch: 900,  gain: 0.17, dur: 0.032 });
   // 내려갈 때 큰 딸깍
-  clickSound({ t: 0.56, pitch: 720,  gain: 0.26, dur: 0.045 });
+  clickSound({ t: 0.62, pitch: 720,  gain: 0.26, dur: 0.048 });
   // 돌아오며 작은 딸깍
-  clickSound({ t: 0.86, pitch: 860,  gain: 0.16, dur: 0.028 });
+  clickSound({ t: 0.92, pitch: 860,  gain: 0.14, dur: 0.028 });
 }
 
 /* =========================================================
@@ -465,8 +614,7 @@ function leverClickPattern(){
    - 100% 도달 후 30초 동안 "100% 게이지만" 표시
    - 그 이후 On.gif 10분 재생
    - 끝나면 0%로 리셋 후 반복
-   + On.gif 시작 순간 🎰 레버 1회
-   + ✅ 요청: On.gif 시작 직전에 100% 게이지 숨김(겹침 방지)
+   + ✅ 겹침 방지: On.gif 시작 직전에 게이지 숨김
 ========================================================= */
 const OW_INTERVAL_MS = 1_000;
 const HOLD_100_MS    = 30_000;
@@ -508,33 +656,26 @@ function startOWLoop(){
   clearOWTimers();
   owValue = 0;
   hideOn();
-
-  // ✅ 혹시 숨김 상태로 남는 것 방지
-  centerImg.style.visibility = "visible";
-
+  centerImg.style.visibility = "visible"; // 안전
   setOW(0);
 
   chargingTimer = setInterval(() => {
-    if (owValue < 100){
-      setOW(owValue + 1);
-    }
+    if (owValue < 100) setOW(owValue + 1);
 
     if (owValue >= 100){
       clearInterval(chargingTimer);
       chargingTimer = null;
 
       holdTimer = setTimeout(() => {
-        // ✅ 100% 게이지와 On.gif 겹침 방지: On 시작 직전에 게이지 숨김
+        // ✅ 100% 게이지와 On.gif 겹침 방지
         centerImg.style.visibility = "hidden";
 
         showOn();
-        startRouletteSpin(); // 레버 이벤트
+        startRouletteSpin();
 
         onTimer = setTimeout(() => {
           hideOn();
           stopRouletteIfRunning();
-
-          // 다음 루프 전에 다시 보이게
           centerImg.style.visibility = "visible";
           startOWLoop();
         }, ON_DURATION_MS);
@@ -585,10 +726,12 @@ renderMental();
 setInterval(tickMental, MENTAL_INTERVAL_MS);
 
 /* =========================================================
-   🎰 레버 당첨 (룰렛 대체)
-   - 레버 내려가면 결과 확정
-   - 결과 30초 보여주고 2초 페이드아웃
-   + ✅ 딸깍딸깍 사운드
+   🎰 레버 + 릴(텍스트) 연출 요구사항
+   - 오버레이 뜨고 10초 후
+   - 1초 동안 레버 내려감
+   - 레버 내려가면 릴 텍스트가 아래로 30초 동안 회전
+   - 당첨 확정 순간: 폭죽(양옆)
+   - "당첨 박스" 제거(아예 없음)
 ========================================================= */
 const rouletteItems = [
   "골반댄스",
@@ -601,20 +744,183 @@ const rouletteItems = [
 
 const rouletteOverlay = document.getElementById("rouletteOverlay");
 const rouletteWrap = document.getElementById("rouletteWrap");
-const rouletteResult = document.getElementById("rouletteResult");
 
 const leverRod = document.getElementById("leverRod");
-const leverWinner = document.getElementById("leverWinner");
 
-const ROULETTE_SHOW_MS = 30_000;
-const ROULETTE_FADE_MS = 2_000;
+const reelInner = document.getElementById("reelInner");
+const fwLeft = document.getElementById("fwLeft");
+const fwRight = document.getElementById("fwRight");
 
-let rouletteFadeTimer = null;
-let rouletteHideTimer = null;
-let leverAnimTimer = null;
+const WAIT_BEFORE_PULL_MS = 10_000;
+const LEVER_PULL_MS = 1_000;
+const REEL_SPIN_MS = 30_000;
+
+const OVERLAY_SHOW_AFTER_WIN_MS = 2_000; // 폭죽 보여주는 시간(짧게)
+const FADE_AFTER_WIN_MS = 2_000;         // 페이드 시간
+const ITEM_H = 56;                       // .reelItem height와 동일해야 함
+
+let startDelayTimer = null;
+let leverReturnTimer = null;
+let winFadeTimer = null;
+let winHideTimer = null;
+
+let reelRAF = null;
+let reelRunning = false;
+
+let currentOffset = 0;
+let cycleH = 0;
+
+function buildReel(){
+  // 충분히 길게 반복 리스트 만들기
+  const repeats = 18;
+  const all = [];
+  for (let r=0;r<repeats;r++){
+    for (let i=0;i<rouletteItems.length;i++){
+      all.push(rouletteItems[i]);
+    }
+  }
+  reelInner.innerHTML = all.map(t => `<div class="reelItem">${t}</div>`).join("");
+  cycleH = rouletteItems.length * ITEM_H;
+  currentOffset = 0;
+  reelInner.style.transform = `translateY(${currentOffset}px)`;
+}
+buildReel();
 
 function pickWinner(){
   return Math.floor(Math.random() * rouletteItems.length);
+}
+
+function easeOutCubic(x){ return 1 - Math.pow(1-x, 3); }
+
+function startReelSpinAndStopOn(winnerIndex){
+  // 릴은 "아래로" 회전(translateY 증가하면 아래로 내려가서 위쪽이 보임 → 반대로라 헷갈릴 수 있음)
+  // 여기선 아래로 흐르는 느낌을 위해 offset을 "마이너스"로 계속 줄여서(위로 올려서) 글자가 아래로 지나가게 보이게 함.
+  // (릴 안의 컨텐츠가 위로 이동하면 창에서는 텍스트가 아래로 내려오는 것처럼 보임)
+  if (reelRAF) cancelAnimationFrame(reelRAF);
+  reelRunning = true;
+
+  const startAt = performance.now();
+  const startOffset = currentOffset;
+
+  // 속도: 30초 동안 자연스럽게 충분히 많이 돌게
+  const speed = 1600; // px/sec (원하면 더 올려도 됨)
+
+  // 마지막 1.2초는 감속해서 winner에 맞추기
+  const settleMs = 1200;
+  const spinMs = Math.max(0, REEL_SPIN_MS - settleMs);
+
+  // winner를 중앙 하이라이트(창 중앙)에 맞추기 위한 목표 offset 계산
+  // reelClip inset(14px) + window 안에서 중앙은 대략 14 + (140-28)/2 = 70 근처.
+  // 하지만 item 자체가 56px 고정이니, "정확한 중앙"은 감각적으로 맞추기 위해 42px 보정.
+  const centerY = 42; // 감각 보정치(필요하면 38~46 사이로 조절)
+  const targetInCycle = winnerIndex * ITEM_H; // cycle에서 winner가 시작하는 위치
+  // currentOffset을 cycle로 정규화한 뒤, target으로 이동
+  const normalized = ((-startOffset % cycleH) + cycleH) % cycleH; // 0..cycleH
+  // 목표: (-offset) % cycleH == targetInCycle - centerY (mod)
+  // => offset == -(targetInCycle - centerY) (mod cycleH)
+  let desired = - (targetInCycle - centerY);
+  // desired와 같은 클래스에서, 현재 offset보다 충분히 더 회전하도록(더 음수로)
+  // spin 동안 offset은 계속 감소(더 음수)하니, desired보다 더 작은(음수 더 큰 절댓값) 값을 선택
+  while (desired > startOffset - 2000) {
+    desired -= cycleH;
+  }
+  // 한 번 더 크게 돌려서 “진짜 돌아가다 멈춤” 느낌
+  desired -= cycleH * 6;
+
+  const settleStartAt = startAt + spinMs;
+
+  function tick(now){
+    if (!reelRunning) return;
+
+    if (now < settleStartAt){
+      const dt = (now - startAt) / 1000;
+      currentOffset = startOffset - speed * dt;
+      reelInner.style.transform = `translateY(${currentOffset}px)`;
+      reelRAF = requestAnimationFrame(tick);
+      return;
+    }
+
+    // 감속 구간
+    const p = Math.min(1, (now - settleStartAt) / settleMs);
+    const e = easeOutCubic(p);
+
+    // 감속 시작 offset
+    const dtSpin = spinMs / 1000;
+    const offsetAtSettleStart = startOffset - speed * dtSpin;
+
+    currentOffset = offsetAtSettleStart + (desired - offsetAtSettleStart) * e;
+    reelInner.style.transform = `translateY(${currentOffset}px)`;
+
+    if (p >= 1){
+      reelRunning = false;
+      reelRAF = null;
+      onWin(winnerIndex);
+      return;
+    }
+
+    reelRAF = requestAnimationFrame(tick);
+  }
+
+  reelRAF = requestAnimationFrame(tick);
+}
+
+function spawnFireworks(container){
+  container.innerHTML = "";
+  container.style.display = "block";
+
+  const colors = [
+    "radial-gradient(circle at 30% 30%, rgba(255,255,255,.95), rgba(255,255,255,.2) 45%, rgba(0,0,0,.25) 100%)",
+    "radial-gradient(circle at 30% 30%, rgba(35,224,107,.95), rgba(35,224,107,.2) 45%, rgba(0,0,0,.25) 100%)",
+    "radial-gradient(circle at 30% 30%, rgba(255,59,48,.95), rgba(255,59,48,.2) 45%, rgba(0,0,0,.25) 100%)",
+    "radial-gradient(circle at 30% 30%, rgba(255,214,10,.95), rgba(255,214,10,.2) 45%, rgba(0,0,0,.25) 100%)",
+    "radial-gradient(circle at 30% 30%, rgba(10,132,255,.95), rgba(10,132,255,.2) 45%, rgba(0,0,0,.25) 100%)",
+    "radial-gradient(circle at 30% 30%, rgba(175,82,222,.95), rgba(175,82,222,.2) 45%, rgba(0,0,0,.25) 100%)",
+  ];
+
+  const count = 18;
+  for (let i=0;i<count;i++){
+    const p = document.createElement("div");
+    p.className = "particle";
+    const angle = (Math.PI * 2) * (i / count) + (Math.random()*0.25);
+    const dist = 80 + Math.random()*80;
+    const dx = Math.cos(angle) * dist;
+    const dy = Math.sin(angle) * dist;
+
+    p.style.setProperty("--dx", `${dx}px`);
+    p.style.setProperty("--dy", `${dy}px`);
+    p.style.background = colors[i % colors.length];
+    p.style.animation = `burst ${700 + Math.random()*450}ms ease-out forwards`;
+    p.style.animationDelay = `${Math.random()*80}ms`;
+
+    container.appendChild(p);
+  }
+
+  // 자동 숨김
+  setTimeout(() => {
+    container.style.display = "none";
+    container.innerHTML = "";
+  }, OVERLAY_SHOW_AFTER_WIN_MS);
+}
+
+function onWin(winnerIndex){
+  const resultText = rouletteItems[winnerIndex];
+
+  // ✅ 폭죽
+  spawnFireworks(fwLeft);
+  spawnFireworks(fwRight);
+
+  // TTS(원하면 멘트 바꿔줘도 됨)
+  speakDiva(`포로리 궁 준비 완료!  ${resultText}!  시동, 거는중!`);
+
+  // ✅ 폭죽 잠깐 후 서서히 사라짐
+  winFadeTimer = setTimeout(() => {
+    rouletteOverlay.style.opacity = "0";
+  }, OVERLAY_SHOW_AFTER_WIN_MS);
+
+  winHideTimer = setTimeout(() => {
+    rouletteOverlay.style.display = "none";
+    rouletteOverlay.style.opacity = "1";
+  }, OVERLAY_SHOW_AFTER_WIN_MS + FADE_AFTER_WIN_MS);
 }
 
 function startRouletteSpin(){
@@ -623,58 +929,51 @@ function startRouletteSpin(){
   rouletteOverlay.style.display = "block";
   rouletteOverlay.style.opacity = "1";
 
-  rouletteResult.style.display = "none";
-  rouletteResult.textContent = "";
-
   rouletteWrap.classList.remove("pop");
   void rouletteWrap.offsetWidth;
   rouletteWrap.classList.add("pop");
 
-  // 레버 준비
-  leverWinner.textContent = "READY";
-  leverRod.classList.remove("pull");
-  void leverRod.offsetWidth;
+  // 레버/릴 초기화
+  leverRod.classList.remove("pullDown","returnUp");
+  buildReel();
 
-  // ✅ 자동 레버 당기기 + 사운드
-  leverRod.classList.add("pull");
-  leverClickPattern();
-
+  // ✅ 10초 대기 후 레버 1초 내려감 → 내려가면 30초 릴 회전
   const winnerIndex = pickWinner();
-  const resultText = rouletteItems[winnerIndex];
 
-  // 레버 내려가는 타이밍에 맞춰 결과 확정 (대략 0.62초 후)
-  leverAnimTimer = setTimeout(() => {
-    leverWinner.textContent = resultText;
+  startDelayTimer = setTimeout(() => {
+    leverRod.classList.add("pullDown");
+    leverClickPattern(); // 딸깍딸깍
 
-    rouletteResult.textContent = `당첨: ${resultText}`;
-    rouletteResult.style.display = "block";
+    // 레버 내려가자마자 릴 시작
+    startReelSpinAndStopOn(winnerIndex);
 
-    speakDiva(`포로리 궁 준비 완료!  ${resultText}!  시동, 거는중!`);
+    // 레버는 살짝 늦게 복귀(보기 좋게)
+    leverReturnTimer = setTimeout(() => {
+      leverRod.classList.remove("pullDown");
+      leverRod.classList.add("returnUp");
+      setTimeout(() => leverRod.classList.remove("returnUp"), 560);
+    }, LEVER_PULL_MS + 220);
 
-    rouletteFadeTimer = setTimeout(() => {
-      rouletteOverlay.style.opacity = "0";
-    }, ROULETTE_SHOW_MS);
-
-    rouletteHideTimer = setTimeout(() => {
-      rouletteOverlay.style.display = "none";
-      rouletteOverlay.style.opacity = "1";
-    }, ROULETTE_SHOW_MS + ROULETTE_FADE_MS);
-  }, 620);
+  }, WAIT_BEFORE_PULL_MS);
 }
 
 function stopRouletteIfRunning(){
-  if (rouletteFadeTimer){ clearTimeout(rouletteFadeTimer); rouletteFadeTimer = null; }
-  if (rouletteHideTimer){ clearTimeout(rouletteHideTimer); rouletteHideTimer = null; }
-  if (leverAnimTimer){ clearTimeout(leverAnimTimer); leverAnimTimer = null; }
+  if (startDelayTimer){ clearTimeout(startDelayTimer); startDelayTimer = null; }
+  if (leverReturnTimer){ clearTimeout(leverReturnTimer); leverReturnTimer = null; }
+  if (winFadeTimer){ clearTimeout(winFadeTimer); winFadeTimer = null; }
+  if (winHideTimer){ clearTimeout(winHideTimer); winHideTimer = null; }
+
+  if (reelRAF){ cancelAnimationFrame(reelRAF); reelRAF = null; }
+  reelRunning = false;
+
+  fwLeft.style.display = "none"; fwLeft.innerHTML = "";
+  fwRight.style.display = "none"; fwRight.innerHTML = "";
 
   rouletteOverlay.style.display = "none";
   rouletteOverlay.style.opacity = "1";
-  rouletteResult.style.display = "none";
 
-  if (leverRod) leverRod.classList.remove("pull");
-  if (leverWinner) leverWinner.textContent = "READY";
+  leverRod.classList.remove("pullDown","returnUp");
 }
 </script>
 </body>
 </html>
-
