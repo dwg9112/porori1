@@ -86,10 +86,11 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
   z-index:200;
   pointer-events:none;
   opacity:1;
-  transition: opacity 2.0s ease;
+  transition: opacity 1.2s ease;
 }
 #rouletteOverlay.bg{
-  background: radial-gradient(circle at 50% 40%, rgba(0,0,0,.28), rgba(0,0,0,.12) 55%, rgba(0,0,0,0) 78%);
+  background:
+    radial-gradient(circle at 50% 40%, rgba(0,0,0,.32), rgba(0,0,0,.14) 55%, rgba(0,0,0,0) 78%);
 }
 
 #rouletteWrap{
@@ -97,15 +98,15 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
   left:50%;
   top:44%;
   transform:translate(-50%, -50%);
-  width:560px;
-  height:560px;
+  width:620px;
+  height:620px;
 }
 
 #rouletteGlow{
   position:absolute;
-  inset:-40px;
+  inset:-48px;
   border-radius: 999px;
-  background: radial-gradient(circle, rgba(255,255,255,.12), rgba(0,0,0,0) 70%);
+  background: radial-gradient(circle, rgba(255,255,255,.14), rgba(0,0,0,0) 70%);
   filter: blur(2px);
   z-index:-1;
 }
@@ -114,13 +115,12 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
 #rouletteTitle{
   position:absolute;
   left:50%;
-  top:-78px;
+  top:-86px;
   transform:translateX(-50%);
   font-family: Arial, sans-serif;
   font-weight: 900;
-  font-size: 38px;
+  font-size: 40px;
   letter-spacing: 1px;
-  color: rgba(255,255,255,.95);
   text-shadow: 0 10px 30px rgba(0,0,0,.55), 0 0 18px rgba(255,255,255,.18);
   white-space:nowrap;
   display:flex;
@@ -128,82 +128,162 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
   gap:12px;
 }
 #rouletteTitle .r{
-  color: rgba(0,0,0,.88); /* 룰렛: 검정 */
+  color: rgba(0,0,0,.90);
   text-shadow: 0 12px 28px rgba(0,0,0,.55), 0 0 10px rgba(255,255,255,.12);
 }
 #rouletteTitle .s{
-  color: #23e06b; /* START!: 초록 */
-  text-shadow: 0 12px 28px rgba(0,0,0,.55), 0 0 16px rgba(35,224,107,.35);
+  color: #23e06b;
+  text-shadow: 0 12px 28px rgba(0,0,0,.55), 0 0 16px rgba(35,224,107,.40);
 }
 
 #rouletteSub{
   position:absolute;
   left:50%;
-  top:-24px;
+  top:-26px;
   transform:translateX(-50%);
   font-family: Arial, sans-serif;
   font-weight: 900;
-  font-size: 26px;
+  font-size: 28px;
   letter-spacing: 1px;
-  color: #ff3b30; /* 당겨요!: 빨강 */
-  text-shadow: 0 12px 28px rgba(0,0,0,.55), 0 0 18px rgba(255,59,48,.25);
+  color: #ff3b30;
+  text-shadow: 0 12px 28px rgba(0,0,0,.55), 0 0 18px rgba(255,59,48,.28);
   white-space:nowrap;
 }
 
 /* =========================
-   🎰 아케이드 레버 머신(더 게임장 느낌)
+   🎰 아케이드 슬롯머신(더 화려하게)
 ========================= */
 #leverMachine{
-  width:560px;
-  height:560px;
+  width:620px;
+  height:620px;
   position:relative;
 }
 
-/* 본체 */
+/* 네온 테두리 링 */
+#neonRing{
+  position:absolute;
+  left:50%;
+  top:54%;
+  transform:translate(-50%,-50%);
+  width:590px;
+  height:430px;
+  border-radius: 46px;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(255,255,255,.18), rgba(255,255,255,0) 60%),
+    rgba(0,0,0,.12);
+  box-shadow:
+    0 40px 110px rgba(0,0,0,.55),
+    0 0 36px rgba(35,224,107,.20),
+    0 0 26px rgba(10,132,255,.12),
+    inset 0 0 0 2px rgba(255,255,255,.10);
+}
+
 #arcadeCabinet{
   position:absolute;
   left:50%;
   top:54%;
   transform:translate(-50%,-50%);
-  width:520px;
-  height:360px;
-  border-radius: 28px;
+  width:560px;
+  height:400px;
+  border-radius: 40px;
   background:
-    radial-gradient(circle at 35% 20%, rgba(255,255,255,.22), rgba(255,255,255,0) 55%),
-    linear-gradient(to bottom, rgba(30,30,30,.92), rgba(10,10,10,.92));
+    radial-gradient(circle at 35% 20%, rgba(255,255,255,.22), rgba(255,255,255,0) 58%),
+    linear-gradient(to bottom, rgba(32,32,32,.95), rgba(10,10,10,.96));
   box-shadow:
-    0 30px 80px rgba(0,0,0,.55),
-    inset 0 0 0 2px rgba(255,255,255,.10),
-    inset 0 0 0 10px rgba(0,0,0,.25);
+    0 34px 95px rgba(0,0,0,.58),
+    inset 0 0 0 2px rgba(255,255,255,.12),
+    inset 0 0 0 12px rgba(0,0,0,.25);
   overflow:hidden;
 }
 
 #arcadeBezel{
   position:absolute;
   inset:18px;
-  border-radius: 22px;
+  border-radius: 30px;
   background:
-    linear-gradient(to bottom, rgba(255,255,255,.06), rgba(255,255,255,0)),
+    radial-gradient(circle at 50% 0%, rgba(255,255,255,.10), rgba(255,255,255,0) 55%),
+    linear-gradient(to bottom, rgba(255,255,255,.07), rgba(255,255,255,0)),
     rgba(0,0,0,.28);
   box-shadow:
-    inset 0 0 0 2px rgba(255,255,255,.10),
-    inset 0 0 0 10px rgba(0,0,0,.22);
+    inset 0 0 0 2px rgba(255,255,255,.12),
+    inset 0 0 0 12px rgba(0,0,0,.22);
+}
+
+/* 상단 마퀴(LED) */
+#marquee{
+  position:absolute;
+  left:50%;
+  top:24px;
+  transform:translateX(-50%);
+  width:420px;
+  height:64px;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 50% 25%, rgba(255,255,255,.18), rgba(255,255,255,0) 60%),
+    linear-gradient(to bottom, rgba(35,224,107,.22), rgba(10,132,255,.10));
+  box-shadow:
+    0 16px 45px rgba(0,0,0,.45),
+    inset 0 0 0 2px rgba(255,255,255,.14),
+    0 0 18px rgba(35,224,107,.20);
+  overflow:hidden;
+}
+#marqueeText{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family: Arial, sans-serif;
+  font-weight: 900;
+  font-size: 26px;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,.96);
+  text-shadow: 0 10px 25px rgba(0,0,0,.55);
+}
+#marqueeDots{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 14px;
+  opacity:.95;
+}
+.dot{
+  width:10px; height:10px; border-radius:999px;
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(255,255,255,.12) 50%, rgba(0,0,0,.30) 100%);
+  box-shadow: 0 0 14px rgba(35,224,107,.18), 0 10px 18px rgba(0,0,0,.35);
+  animation: dotBlink 1.3s infinite ease-in-out;
+}
+.dot:nth-child(2){ animation-delay:.12s; }
+.dot:nth-child(3){ animation-delay:.24s; }
+.dot:nth-child(4){ animation-delay:.36s; }
+.dot:nth-child(5){ animation-delay:.48s; }
+.dot:nth-child(6){ animation-delay:.60s; }
+.dot:nth-child(7){ animation-delay:.72s; }
+.dot:nth-child(8){ animation-delay:.84s; }
+.dot:nth-child(9){ animation-delay:.96s; }
+.dot:nth-child(10){ animation-delay:1.08s; }
+
+@keyframes dotBlink{
+  0%,100%{ filter:brightness(1); opacity:.75; }
+  50%{ filter:brightness(1.55); opacity:1; }
 }
 
 /* 릴(글씨 돌아가는 창) */
 #reelWindow{
   position:absolute;
   left:50%;
-  top:50%;
-  transform:translate(-55%,-50%);
-  width:320px;
-  height:140px;
-  border-radius: 18px;
-  background: rgba(0,0,0,.55);
+  top:56%;
+  transform:translate(-56%,-50%);
+  width:360px;
+  height:168px;
+  border-radius: 22px;
+  background: rgba(0,0,0,.62);
   box-shadow:
-    0 18px 45px rgba(0,0,0,.45),
-    inset 0 0 0 2px rgba(255,255,255,.14),
-    inset 0 0 0 10px rgba(0,0,0,.28);
+    0 18px 55px rgba(0,0,0,.48),
+    inset 0 0 0 2px rgba(255,255,255,.16),
+    inset 0 0 0 12px rgba(0,0,0,.30);
   overflow:hidden;
 }
 
@@ -214,32 +294,32 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
     to bottom,
     rgba(255,255,255,.05) 0px,
     rgba(255,255,255,.05) 2px,
-    rgba(0,0,0,0) 6px,
-    rgba(0,0,0,0) 12px
+    rgba(0,0,0,0) 7px,
+    rgba(0,0,0,0) 14px
   );
   mix-blend-mode: overlay;
-  opacity:.25;
+  opacity:.26;
   pointer-events:none;
 }
 
 #reelHighlight{
   position:absolute;
-  left:12px; right:12px;
+  left:14px; right:14px;
   top:50%;
   transform:translateY(-50%);
-  height:56px;
-  border-radius: 14px;
+  height:64px;
+  border-radius: 16px;
   box-shadow:
-    inset 0 0 0 2px rgba(35,224,107,.35),
-    0 0 18px rgba(35,224,107,.22);
-  background: linear-gradient(to bottom, rgba(35,224,107,.10), rgba(0,0,0,0));
+    inset 0 0 0 2px rgba(35,224,107,.40),
+    0 0 22px rgba(35,224,107,.24);
+  background: linear-gradient(to bottom, rgba(35,224,107,.12), rgba(0,0,0,0));
   pointer-events:none;
 }
 
 #reelClip{
   position:absolute;
   inset:14px;
-  border-radius: 14px;
+  border-radius: 16px;
   overflow:hidden;
 }
 
@@ -250,7 +330,7 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
 }
 
 .reelItem{
-  height:56px;               /* 고정 높이 (JS에서도 사용) */
+  height:64px;               /* JS ITEM_H와 동일 */
   display:flex;
   align-items:center;
   justify-content:center;
@@ -258,29 +338,65 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
   font-weight: 900;
   font-size: 34px;
   letter-spacing: 1px;
-  color: rgba(255,255,255,.96);
-  text-shadow: 0 12px 28px rgba(0,0,0,.65);
+  color: rgba(255,255,255,.98);
+  text-shadow: 0 12px 28px rgba(0,0,0,.70);
   white-space:nowrap;
+  padding:0 14px;
+  box-sizing:border-box;
 }
 
-/* 장식 라이트 */
+/* 당첨 표시(릴 창 아래, 1분 유지) */
+#winBanner{
+  position:absolute;
+  left:50%;
+  top:calc(56% + 130px);
+  transform:translateX(-56%);
+  width:360px;
+  min-height:56px;
+  padding:12px 14px;
+  box-sizing:border-box;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(255,255,255,.16), rgba(255,255,255,0) 55%),
+    rgba(0,0,0,.58);
+  box-shadow:
+    0 18px 55px rgba(0,0,0,.40),
+    inset 0 0 0 2px rgba(255,255,255,.16),
+    0 0 26px rgba(35,224,107,.14);
+  display:none;
+
+  font-family: Arial, sans-serif;
+  font-weight: 900;
+  font-size: 22px;
+  letter-spacing: .5px;
+  color: rgba(255,255,255,.96);
+  text-shadow: 0 10px 25px rgba(0,0,0,.60);
+
+  /* ✅ 길어도 줄바꿈/잘림 방지 */
+  white-space: normal;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  text-align:center;
+}
+
+/* 사이드 라이트 */
 #sideLights{
   position:absolute;
-  left:16px;
-  top:20px;
-  bottom:20px;
-  width:42px;
+  left:22px;
+  top:120px;
+  bottom:28px;
+  width:50px;
   display:flex;
   flex-direction:column;
   justify-content:space-between;
-  opacity:.95;
+  opacity:.96;
 }
 .lightDot{
   width:18px; height:18px;
   border-radius:999px;
   background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(255,255,255,.15) 45%, rgba(0,0,0,.35) 100%);
-  box-shadow: 0 10px 20px rgba(0,0,0,.35), 0 0 18px rgba(35,224,107,.14);
-  margin-left:10px;
+  box-shadow: 0 10px 20px rgba(0,0,0,.35), 0 0 18px rgba(35,224,107,.16);
+  margin-left:14px;
   animation: blink 1.6s infinite ease-in-out;
 }
 .lightDot:nth-child(2){ animation-delay:.2s; }
@@ -292,18 +408,18 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
 .lightDot:nth-child(8){ animation-delay:1.4s; }
 
 @keyframes blink{
-  0%,100%{ filter:brightness(1); opacity:.85; }
-  50%{ filter:brightness(1.35); opacity:1; }
+  0%,100%{ filter:brightness(1); opacity:.82; }
+  50%{ filter:brightness(1.45); opacity:1; }
 }
 
-/* 레버(더 이쁘게) */
+/* 레버(더 스무스) */
 #leverAssembly{
   position:absolute;
-  right:34px;
-  top:50%;
+  right:38px;
+  top:58%;
   transform:translateY(-50%);
-  width:110px;
-  height:300px;
+  width:130px;
+  height:320px;
   filter: drop-shadow(0 18px 28px rgba(0,0,0,.45));
 }
 #leverTrack{
@@ -311,11 +427,11 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
   left:50%;
   top:18px;
   transform:translateX(-50%);
-  width:28px;
-  height:264px;
+  width:30px;
+  height:280px;
   border-radius: 999px;
   background:
-    linear-gradient(to bottom, rgba(255,255,255,.25), rgba(255,255,255,.04)),
+    linear-gradient(to bottom, rgba(255,255,255,.22), rgba(255,255,255,.04)),
     rgba(0,0,0,.25);
   box-shadow:
     inset 0 0 0 2px rgba(255,255,255,.10),
@@ -327,20 +443,21 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
   left:50%;
   top:0;
   transform:translateX(-50%);
-  width:60px;
-  height:300px;
+  width:70px;
+  height:320px;
   transform-origin: 50% 0%;
+  will-change: transform;
 }
 #leverRod::before{
   content:"";
   position:absolute;
   left:50%;
-  top:28px;
+  top:32px;
   transform:translateX(-50%);
   width:12px;
-  height:210px;
+  height:220px;
   border-radius: 999px;
-  background: linear-gradient(to bottom, rgba(255,255,255,.75), rgba(255,255,255,.18));
+  background: linear-gradient(to bottom, rgba(255,255,255,.78), rgba(255,255,255,.18));
   box-shadow: inset 0 0 0 1px rgba(0,0,0,.18);
 }
 #leverKnob{
@@ -348,41 +465,44 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
   left:50%;
   top:0;
   transform:translateX(-50%);
-  width:52px;
-  height:52px;
+  width:58px;
+  height:58px;
   border-radius:999px;
   background:
     radial-gradient(circle at 30% 25%, rgba(255,255,255,.95), rgba(255,255,255,.18) 35%, rgba(0,0,0,.30) 100%),
-    radial-gradient(circle at 60% 70%, rgba(255,59,48,.65), rgba(255,59,48,0) 62%);
-  box-shadow: 0 16px 30px rgba(0,0,0,.45), inset 0 0 0 2px rgba(255,255,255,.22);
+    radial-gradient(circle at 60% 70%, rgba(255,59,48,.70), rgba(255,59,48,0) 62%);
+  box-shadow: 0 18px 34px rgba(0,0,0,.48), inset 0 0 0 2px rgba(255,255,255,.22);
 }
 
-/* ✅ 10초 후 1초 동안 내려감 */
-@keyframes leverPullDown {
+/* ✅ 스무스: 내려갈 때는 ease-in, 올라올 때는 ease-out + 살짝 바운스 */
+@keyframes leverPullDownSmooth {
   0%   { transform: translateX(-50%) translateY(0) rotate(0deg); }
-  65%  { transform: translateX(-50%) translateY(170px) rotate(10deg); }
+  20%  { transform: translateX(-50%) translateY(30px) rotate(2deg); }
+  55%  { transform: translateX(-50%) translateY(165px) rotate(10deg); }
+  75%  { transform: translateX(-50%) translateY(175px) rotate(11deg); }
   100% { transform: translateX(-50%) translateY(170px) rotate(10deg); }
 }
-@keyframes leverReturnUp {
+@keyframes leverReturnUpSmooth {
   0%   { transform: translateX(-50%) translateY(170px) rotate(10deg); }
+  70%  { transform: translateX(-50%) translateY(-8px) rotate(-1.2deg); }
   100% { transform: translateX(-50%) translateY(0) rotate(0deg); }
 }
-#leverRod.pullDown{ animation: leverPullDown 1000ms cubic-bezier(.2,.9,.2,1) forwards; }
-#leverRod.returnUp{ animation: leverReturnUp 520ms cubic-bezier(.2,.8,.2,1) forwards; }
+#leverRod.pullDown{ animation: leverPullDownSmooth 1000ms cubic-bezier(.18,.92,.24,1) forwards; }
+#leverRod.returnUp{ animation: leverReturnUpSmooth 700ms cubic-bezier(.2,.8,.2,1) forwards; }
 
 /* 폭죽(양옆) */
 .fireworks{
   position:absolute;
-  top:50%;
+  top:54%;
   transform:translateY(-50%);
-  width:240px;
-  height:240px;
+  width:260px;
+  height:260px;
   pointer-events:none;
   display:none;
   z-index:5;
 }
-#fwLeft{ left:-40px; }
-#fwRight{ right:-40px; }
+#fwLeft{ left:-52px; }
+#fwRight{ right:-52px; }
 
 .particle{
   position:absolute;
@@ -390,14 +510,12 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
   width:10px; height:10px;
   border-radius:999px;
   transform:translate(-50%,-50%);
-  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(255,255,255,.2) 45%, rgba(0,0,0,.25) 100%);
-  box-shadow: 0 10px 24px rgba(0,0,0,.35);
   opacity:0;
 }
 
 @keyframes burst {
-  0%   { transform:translate(-50%,-50%) scale(0.6); opacity:0; }
-  10%  { opacity:1; }
+  0%   { transform:translate(-50%,-50%) scale(0.55); opacity:0; }
+  12%  { opacity:1; }
   100% { transform:translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1); opacity:0; }
 }
 
@@ -446,9 +564,20 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
         <div id="fwLeft" class="fireworks"></div>
         <div id="fwRight" class="fireworks"></div>
 
+        <!-- 네온 링 -->
+        <div id="neonRing"></div>
+
         <!-- 본체 -->
         <div id="arcadeCabinet">
           <div id="arcadeBezel"></div>
+
+          <div id="marquee">
+            <div id="marqueeDots">
+              <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+              <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+            </div>
+            <div id="marqueeText">SLOT EVENT</div>
+          </div>
 
           <div id="sideLights" aria-hidden="true">
             <div class="lightDot"></div><div class="lightDot"></div><div class="lightDot"></div><div class="lightDot"></div>
@@ -463,6 +592,9 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
             <div id="reelHighlight"></div>
             <div id="reelScanline"></div>
           </div>
+
+          <!-- 당첨 배너(글씨 잘 담기도록) -->
+          <div id="winBanner"></div>
 
           <!-- 레버 -->
           <div id="leverAssembly">
@@ -534,7 +666,6 @@ function speakDiva(text){
 
 /* =========================================================
    🎵 슬롯 레버 "딸깍딸깍" 사운드 (WebAudio)
-   - 최초 1회 사용자 제스처 없으면 브라우저가 소리를 막을 수 있음
 ========================================================= */
 let audioCtx = null;
 
@@ -579,7 +710,6 @@ function clickSound({ t=0, pitch=900, dur=0.035, gain=0.22 } = {}){
   o.start(now);
   o.stop(now + dur);
 
-  // 아주 짧은 노이즈(딱!)
   const bufferSize = Math.floor(ctx.sampleRate * 0.02);
   const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
   const data = buffer.getChannelData(0);
@@ -598,23 +728,15 @@ function clickSound({ t=0, pitch=900, dur=0.035, gain=0.22 } = {}){
 }
 
 function leverClickPattern(){
-  // 당길 때: 딸깍딸깍
   clickSound({ t: 0.00, pitch: 1050, gain: 0.18, dur: 0.030 });
   clickSound({ t: 0.12, pitch: 980,  gain: 0.17, dur: 0.030 });
   clickSound({ t: 0.24, pitch: 900,  gain: 0.17, dur: 0.032 });
-  // 내려갈 때 큰 딸깍
   clickSound({ t: 0.62, pitch: 720,  gain: 0.26, dur: 0.048 });
-  // 돌아오며 작은 딸깍
   clickSound({ t: 0.92, pitch: 860,  gain: 0.14, dur: 0.028 });
 }
 
 /* =========================================================
-   ✅ OW 궁 루프
-   - 0→100 (50초/칸)
-   - 100% 도달 후 30초 동안 "100% 게이지만" 표시
-   - 그 이후 On.gif 10분 재생
-   - 끝나면 0%로 리셋 후 반복
-   + ✅ 겹침 방지: On.gif 시작 직전에 게이지 숨김
+   ✅ OW 궁 루프 (겹침 방지 포함)
 ========================================================= */
 const OW_INTERVAL_MS = 1_000;
 const HOLD_100_MS    = 30_000;
@@ -656,7 +778,7 @@ function startOWLoop(){
   clearOWTimers();
   owValue = 0;
   hideOn();
-  centerImg.style.visibility = "visible"; // 안전
+  centerImg.style.visibility = "visible";
   setOW(0);
 
   chargingTimer = setInterval(() => {
@@ -667,9 +789,7 @@ function startOWLoop(){
       chargingTimer = null;
 
       holdTimer = setTimeout(() => {
-        // ✅ 100% 게이지와 On.gif 겹침 방지
         centerImg.style.visibility = "hidden";
-
         showOn();
         startRouletteSpin();
 
@@ -726,12 +846,11 @@ renderMental();
 setInterval(tickMental, MENTAL_INTERVAL_MS);
 
 /* =========================================================
-   🎰 레버 + 릴(텍스트) 연출 요구사항
-   - 오버레이 뜨고 10초 후
-   - 1초 동안 레버 내려감
-   - 레버 내려가면 릴 텍스트가 아래로 30초 동안 회전
-   - 당첨 확정 순간: 폭죽(양옆)
-   - "당첨 박스" 제거(아예 없음)
+   🎰 슬롯 연출 (속도 프로필 + 1분 당첨표시)
+   요구:
+   - 처음 아주 천천히
+   - 중간: 0.5초당 1개씩(=500ms/개)
+   - 끝: 천천히 멈추며 당첨 선택
 ========================================================= */
 const rouletteItems = [
   "골반댄스",
@@ -744,35 +863,41 @@ const rouletteItems = [
 
 const rouletteOverlay = document.getElementById("rouletteOverlay");
 const rouletteWrap = document.getElementById("rouletteWrap");
-
 const leverRod = document.getElementById("leverRod");
-
 const reelInner = document.getElementById("reelInner");
+
 const fwLeft = document.getElementById("fwLeft");
 const fwRight = document.getElementById("fwRight");
 
+const winBanner = document.getElementById("winBanner");
+
 const WAIT_BEFORE_PULL_MS = 10_000;
 const LEVER_PULL_MS = 1_000;
-const REEL_SPIN_MS = 30_000;
 
-const OVERLAY_SHOW_AFTER_WIN_MS = 2_000; // 폭죽 보여주는 시간(짧게)
-const FADE_AFTER_WIN_MS = 2_000;         // 페이드 시간
-const ITEM_H = 56;                       // .reelItem height와 동일해야 함
+/* 릴 단계 시간 */
+const PHASE1_MS = 6_000;   // 아주 천천히 가속
+const PHASE2_MS = 18_000;  // 중간: 0.5초/개로 안정
+const PHASE3_MS = 6_000;   // 천천히 감속 + 당첨 고정
+const TOTAL_SPIN_MS = PHASE1_MS + PHASE2_MS + PHASE3_MS;
+
+const WIN_SHOW_MS = 60_000;        // ✅ 당첨 표시 1분
+const FADE_AFTER_WIN_MS = 1_200;   // 페이드
+
+const ITEM_H = 64; // .reelItem height
+let cycleH = rouletteItems.length * ITEM_H;
 
 let startDelayTimer = null;
 let leverReturnTimer = null;
-let winFadeTimer = null;
 let winHideTimer = null;
+let winFadeTimer = null;
 
 let reelRAF = null;
 let reelRunning = false;
 
 let currentOffset = 0;
-let cycleH = 0;
 
 function buildReel(){
-  // 충분히 길게 반복 리스트 만들기
-  const repeats = 18;
+  const repeats = 26; // 길게
   const all = [];
   for (let r=0;r<repeats;r++){
     for (let i=0;i<rouletteItems.length;i++){
@@ -790,72 +915,107 @@ function pickWinner(){
   return Math.floor(Math.random() * rouletteItems.length);
 }
 
+function lerp(a,b,t){ return a + (b-a)*t; }
+function easeInOutCubic(x){
+  return x < 0.5 ? 4*x*x*x : 1 - Math.pow(-2*x + 2, 3)/2;
+}
 function easeOutCubic(x){ return 1 - Math.pow(1-x, 3); }
 
-function startReelSpinAndStopOn(winnerIndex){
-  // 릴은 "아래로" 회전(translateY 증가하면 아래로 내려가서 위쪽이 보임 → 반대로라 헷갈릴 수 있음)
-  // 여기선 아래로 흐르는 느낌을 위해 offset을 "마이너스"로 계속 줄여서(위로 올려서) 글자가 아래로 지나가게 보이게 함.
-  // (릴 안의 컨텐츠가 위로 이동하면 창에서는 텍스트가 아래로 내려오는 것처럼 보임)
+/* "보이는 항목 인덱스" 계산용: 릴 내부 transform 기준 */
+function getCurrentIndexFromOffset(off){
+  // off는 음수로 줄어드는 방향(컨텐츠가 위로 움직임) 가정
+  const normalized = ((-off % cycleH) + cycleH) % cycleH; // 0..cycleH
+  return Math.floor(normalized / ITEM_H) % rouletteItems.length;
+}
+
+/* 당첨 인덱스를 하이라이트 중앙에 맞추는 목표 offset 만들기 */
+function computeWinnerOffsetNear(currentOff, winnerIndex){
+  const centerY = 50; // 중앙 감각 보정(조금 더 안정적으로)
+  const targetInCycle = winnerIndex * ITEM_H;
+  let desired = - (targetInCycle - centerY);
+
+  // desired를 currentOff보다 충분히 작은(더 많이 회전한) 값으로 내림
+  while (desired > currentOff - cycleH) desired -= cycleH;
+  // 추가 회전(더 돌다 멈추는 느낌)
+  desired -= cycleH * 5;
+  return desired;
+}
+
+/* 단계별 “아이템당 시간(ms)” 프로필 */
+function msPerItemProfile(t){
+  // t: 0..TOTAL_SPIN_MS
+  // Phase1: 900ms/개 -> 500ms/개로 천천히 가속
+  if (t < PHASE1_MS){
+    const p = t / PHASE1_MS;
+    return lerp(900, 500, easeInOutCubic(p));
+  }
+  // Phase2: 고정 500ms/개
+  if (t < PHASE1_MS + PHASE2_MS){
+    return 500;
+  }
+  // Phase3: 500ms/개 -> 1100ms/개로 천천히 감속
+  const tt = t - (PHASE1_MS + PHASE2_MS);
+  const p = Math.min(1, tt / PHASE3_MS);
+  return lerp(500, 1100, easeOutCubic(p));
+}
+
+function startReelSpinWithProfileAndStop(winnerIndex){
   if (reelRAF) cancelAnimationFrame(reelRAF);
   reelRunning = true;
 
   const startAt = performance.now();
-  const startOffset = currentOffset;
+  const startOff = currentOffset;
 
-  // 속도: 30초 동안 자연스럽게 충분히 많이 돌게
-  const speed = 1600; // px/sec (원하면 더 올려도 됨)
+  // "아이템이 바뀌는 단위"로 움직이게 (너가 원하는 ‘0.5초당 한개씩 보이게’ 느낌)
+  let lastStepAt = startAt;
+  let off = startOff;
 
-  // 마지막 1.2초는 감속해서 winner에 맞추기
-  const settleMs = 1200;
-  const spinMs = Math.max(0, REEL_SPIN_MS - settleMs);
-
-  // winner를 중앙 하이라이트(창 중앙)에 맞추기 위한 목표 offset 계산
-  // reelClip inset(14px) + window 안에서 중앙은 대략 14 + (140-28)/2 = 70 근처.
-  // 하지만 item 자체가 56px 고정이니, "정확한 중앙"은 감각적으로 맞추기 위해 42px 보정.
-  const centerY = 42; // 감각 보정치(필요하면 38~46 사이로 조절)
-  const targetInCycle = winnerIndex * ITEM_H; // cycle에서 winner가 시작하는 위치
-  // currentOffset을 cycle로 정규화한 뒤, target으로 이동
-  const normalized = ((-startOffset % cycleH) + cycleH) % cycleH; // 0..cycleH
-  // 목표: (-offset) % cycleH == targetInCycle - centerY (mod)
-  // => offset == -(targetInCycle - centerY) (mod cycleH)
-  let desired = - (targetInCycle - centerY);
-  // desired와 같은 클래스에서, 현재 offset보다 충분히 더 회전하도록(더 음수로)
-  // spin 동안 offset은 계속 감소(더 음수)하니, desired보다 더 작은(음수 더 큰 절댓값) 값을 선택
-  while (desired > startOffset - 2000) {
-    desired -= cycleH;
-  }
-  // 한 번 더 크게 돌려서 “진짜 돌아가다 멈춤” 느낌
-  desired -= cycleH * 6;
-
-  const settleStartAt = startAt + spinMs;
+  // Phase3에서 목표 위치로 스냅/보간하기 위한 준비
+  let finalTargetOff = null;
+  let finalStartOff = null;
+  let finalStartAt = null;
 
   function tick(now){
     if (!reelRunning) return;
 
-    if (now < settleStartAt){
-      const dt = (now - startAt) / 1000;
-      currentOffset = startOffset - speed * dt;
+    const elapsed = now - startAt;
+
+    if (elapsed >= TOTAL_SPIN_MS){
+      // 종료: 정확히 당첨 위치로 고정
+      if (finalTargetOff === null){
+        finalTargetOff = computeWinnerOffsetNear(off, winnerIndex);
+        finalStartOff = off;
+        finalStartAt = now;
+      }
+      const settleMs = 900; // 마지막 고정 보간(부드럽게)
+      const p = Math.min(1, (now - finalStartAt) / settleMs);
+      const e = easeOutCubic(p);
+      off = finalStartOff + (finalTargetOff - finalStartOff) * e;
+
+      currentOffset = off;
       reelInner.style.transform = `translateY(${currentOffset}px)`;
+
+      if (p >= 1){
+        reelRunning = false;
+        reelRAF = null;
+        onWin(winnerIndex);
+        return;
+      }
       reelRAF = requestAnimationFrame(tick);
       return;
     }
 
-    // 감속 구간
-    const p = Math.min(1, (now - settleStartAt) / settleMs);
-    const e = easeOutCubic(p);
+    // 프로필 기반으로 “다음 스텝(=다음 아이템)”로 넘어갈 시간 계산
+    const msPerItem = msPerItemProfile(elapsed);
 
-    // 감속 시작 offset
-    const dtSpin = spinMs / 1000;
-    const offsetAtSettleStart = startOffset - speed * dtSpin;
+    if (now - lastStepAt >= msPerItem){
+      // 한 스텝마다 ITEM_H만큼 이동(아래로 굴러가는 느낌)
+      const steps = Math.floor((now - lastStepAt) / msPerItem);
+      lastStepAt += steps * msPerItem;
 
-    currentOffset = offsetAtSettleStart + (desired - offsetAtSettleStart) * e;
-    reelInner.style.transform = `translateY(${currentOffset}px)`;
-
-    if (p >= 1){
-      reelRunning = false;
-      reelRAF = null;
-      onWin(winnerIndex);
-      return;
+      off -= ITEM_H * steps;
+      currentOffset = off;
+      reelInner.style.transform = `translateY(${currentOffset}px)`;
     }
 
     reelRAF = requestAnimationFrame(tick);
@@ -877,50 +1037,56 @@ function spawnFireworks(container){
     "radial-gradient(circle at 30% 30%, rgba(175,82,222,.95), rgba(175,82,222,.2) 45%, rgba(0,0,0,.25) 100%)",
   ];
 
-  const count = 18;
+  const count = 26;
   for (let i=0;i<count;i++){
     const p = document.createElement("div");
     p.className = "particle";
     const angle = (Math.PI * 2) * (i / count) + (Math.random()*0.25);
-    const dist = 80 + Math.random()*80;
+    const dist = 90 + Math.random()*95;
     const dx = Math.cos(angle) * dist;
     const dy = Math.sin(angle) * dist;
 
     p.style.setProperty("--dx", `${dx}px`);
     p.style.setProperty("--dy", `${dy}px`);
     p.style.background = colors[i % colors.length];
-    p.style.animation = `burst ${700 + Math.random()*450}ms ease-out forwards`;
-    p.style.animationDelay = `${Math.random()*80}ms`;
+    p.style.boxShadow = "0 12px 26px rgba(0,0,0,.35)";
+    p.style.animation = `burst ${760 + Math.random()*520}ms ease-out forwards`;
+    p.style.animationDelay = `${Math.random()*90}ms`;
 
     container.appendChild(p);
   }
 
-  // 자동 숨김
+  // 계속 보여둘 필요 없어서 몇 초 후 숨김(배너는 1분 유지)
   setTimeout(() => {
     container.style.display = "none";
     container.innerHTML = "";
-  }, OVERLAY_SHOW_AFTER_WIN_MS);
+  }, 2600);
 }
 
 function onWin(winnerIndex){
   const resultText = rouletteItems[winnerIndex];
 
-  // ✅ 폭죽
+  // 폭죽
   spawnFireworks(fwLeft);
   spawnFireworks(fwRight);
 
-  // TTS(원하면 멘트 바꿔줘도 됨)
+  // ✅ 당첨 배너(글씨 잘 담기게)
+  winBanner.style.display = "block";
+  winBanner.textContent = `🎉 당첨!  ${resultText} 🎉`;
+
   speakDiva(`포로리 궁 준비 완료!  ${resultText}!  시동, 거는중!`);
 
-  // ✅ 폭죽 잠깐 후 서서히 사라짐
+  // 1분 뒤 페이드 후 숨김
   winFadeTimer = setTimeout(() => {
     rouletteOverlay.style.opacity = "0";
-  }, OVERLAY_SHOW_AFTER_WIN_MS);
+  }, WIN_SHOW_MS);
 
   winHideTimer = setTimeout(() => {
     rouletteOverlay.style.display = "none";
     rouletteOverlay.style.opacity = "1";
-  }, OVERLAY_SHOW_AFTER_WIN_MS + FADE_AFTER_WIN_MS);
+    winBanner.style.display = "none";
+    winBanner.textContent = "";
+  }, WIN_SHOW_MS + FADE_AFTER_WIN_MS);
 }
 
 function startRouletteSpin(){
@@ -933,26 +1099,29 @@ function startRouletteSpin(){
   void rouletteWrap.offsetWidth;
   rouletteWrap.classList.add("pop");
 
-  // 레버/릴 초기화
+  // 초기화
   leverRod.classList.remove("pullDown","returnUp");
+  winBanner.style.display = "none";
+  winBanner.textContent = "";
+
   buildReel();
 
-  // ✅ 10초 대기 후 레버 1초 내려감 → 내려가면 30초 릴 회전
   const winnerIndex = pickWinner();
 
+  // 10초 대기 후 레버 내려감(스무스) + 릴 시작
   startDelayTimer = setTimeout(() => {
     leverRod.classList.add("pullDown");
-    leverClickPattern(); // 딸깍딸깍
+    leverClickPattern();
 
-    // 레버 내려가자마자 릴 시작
-    startReelSpinAndStopOn(winnerIndex);
+    // 레버가 내려가는 동안은 릴을 아주 천천히 시작 (프로필이 알아서 처리)
+    startReelSpinWithProfileAndStop(winnerIndex);
 
-    // 레버는 살짝 늦게 복귀(보기 좋게)
+    // 레버 복귀도 더 자연스럽게
     leverReturnTimer = setTimeout(() => {
       leverRod.classList.remove("pullDown");
       leverRod.classList.add("returnUp");
-      setTimeout(() => leverRod.classList.remove("returnUp"), 560);
-    }, LEVER_PULL_MS + 220);
+      setTimeout(() => leverRod.classList.remove("returnUp"), 720);
+    }, LEVER_PULL_MS + 260);
 
   }, WAIT_BEFORE_PULL_MS);
 }
@@ -960,14 +1129,17 @@ function startRouletteSpin(){
 function stopRouletteIfRunning(){
   if (startDelayTimer){ clearTimeout(startDelayTimer); startDelayTimer = null; }
   if (leverReturnTimer){ clearTimeout(leverReturnTimer); leverReturnTimer = null; }
-  if (winFadeTimer){ clearTimeout(winFadeTimer); winFadeTimer = null; }
   if (winHideTimer){ clearTimeout(winHideTimer); winHideTimer = null; }
+  if (winFadeTimer){ clearTimeout(winFadeTimer); winFadeTimer = null; }
 
   if (reelRAF){ cancelAnimationFrame(reelRAF); reelRAF = null; }
   reelRunning = false;
 
   fwLeft.style.display = "none"; fwLeft.innerHTML = "";
   fwRight.style.display = "none"; fwRight.innerHTML = "";
+
+  winBanner.style.display = "none";
+  winBanner.textContent = "";
 
   rouletteOverlay.style.display = "none";
   rouletteOverlay.style.opacity = "1";
