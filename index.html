@@ -77,7 +77,7 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
 }
 
 /* =========================================================
-   🎰 레버 오버레이
+   🎰 오버레이 (✅ 화면 정중앙)
 ========================================================= */
 #rouletteOverlay{
   position:absolute;
@@ -89,15 +89,14 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
   transition: opacity 1.2s ease;
 }
 #rouletteOverlay.bg{
-  background:
-    radial-gradient(circle at 50% 40%, rgba(0,0,0,.32), rgba(0,0,0,.14) 55%, rgba(0,0,0,0) 78%);
+  background: radial-gradient(circle at 50% 40%, rgba(0,0,0,.32), rgba(0,0,0,.14) 55%, rgba(0,0,0,0) 78%);
 }
 
 #rouletteWrap{
   position:absolute;
   left:50%;
-  top:44%;
-  transform:translate(-50%, -50%);
+  top:50%;                 /* ✅ 정중앙 */
+  transform:translate(-50%,-50%);
   width:650px;
   height:650px;
 }
@@ -111,7 +110,7 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
   z-index:-1;
 }
 
-/* 타이틀 */
+/* 타이틀(✅ 정중앙 기준) */
 #rouletteTitle{
   position:absolute;
   left:50%;
@@ -150,26 +149,16 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
 }
 
 /* =========================
-   🎰 아케이드 슬롯머신(더 화려하게)
+   🎰 아케이드 슬롯머신(화려)
 ========================= */
-#leverMachine{
-  width:650px;
-  height:650px;
-  position:relative;
-}
+#leverMachine{ width:650px; height:650px; position:relative; }
 
-/* 무지개 네온 링 */
 #neonRing{
-  position:absolute;
-  left:50%;
-  top:54%;
+  position:absolute; left:50%; top:50%;
   transform:translate(-50%,-50%);
-  width:620px;
-  height:450px;
+  width:620px; height:450px;
   border-radius: 52px;
-  background:
-    radial-gradient(circle at 30% 20%, rgba(255,255,255,.18), rgba(255,255,255,0) 60%),
-    rgba(0,0,0,.10);
+  background: radial-gradient(circle at 30% 20%, rgba(255,255,255,.18), rgba(255,255,255,0) 60%), rgba(0,0,0,.10);
   box-shadow:
     0 46px 120px rgba(0,0,0,.56),
     0 0 34px rgba(255,214,10,.22),
@@ -196,12 +185,9 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
 }
 
 #arcadeCabinet{
-  position:absolute;
-  left:50%;
-  top:54%;
+  position:absolute; left:50%; top:50%;
   transform:translate(-50%,-50%);
-  width:590px;
-  height:420px;
+  width:590px; height:420px;
   border-radius: 44px;
   background:
     radial-gradient(circle at 30% 20%, rgba(255,255,255,.24), rgba(255,255,255,0) 55%),
@@ -221,8 +207,7 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
 }
 
 #arcadeBezel{
-  position:absolute;
-  inset:18px;
+  position:absolute; inset:18px;
   border-radius: 34px;
   background:
     radial-gradient(circle at 50% 0%, rgba(255,255,255,.14), rgba(255,255,255,0) 55%),
@@ -233,14 +218,11 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
     inset 0 0 0 14px rgba(0,0,0,.22);
 }
 
-/* 상단 마퀴 */
+/* 마퀴 */
 #marquee{
-  position:absolute;
-  left:50%;
-  top:22px;
+  position:absolute; left:50%; top:22px;
   transform:translateX(-50%);
-  width:460px;
-  height:70px;
+  width:460px; height:70px;
   border-radius: 22px;
   background:
     radial-gradient(circle at 50% 30%, rgba(255,255,255,.22), rgba(255,255,255,0) 60%),
@@ -253,9 +235,7 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
 }
 #marqueeText{
   position:absolute; inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  display:flex; align-items:center; justify-content:center;
   font-family: Arial, sans-serif;
   font-weight: 900;
   font-size: 28px;
@@ -264,11 +244,8 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
   text-shadow: 0 12px 28px rgba(0,0,0,.60);
 }
 #marqueeDots{
-  position:absolute;
-  inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
+  position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:space-between;
   padding:0 16px;
   opacity:.95;
 }
@@ -287,18 +264,17 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
 .dot:nth-child(8){ animation-delay:.70s; }
 .dot:nth-child(9){ animation-delay:.80s; }
 .dot:nth-child(10){ animation-delay:.90s; }
-
 @keyframes dotBlink{
   0%,100%{ filter:brightness(1); opacity:.70; }
   50%{ filter:brightness(1.65); opacity:1; }
 }
 
-/* 릴 창 */
+/* 릴 창 (✅ 중앙 정렬) */
 #reelWindow{
   position:absolute;
   left:50%;
   top:56%;
-  transform:translate(-56%,-50%);
+  transform:translate(-50%,-50%);   /* ✅ -56% 제거 */
   width:380px;
   height:176px;
   border-radius: 24px;
@@ -310,9 +286,9 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
   overflow:hidden;
 }
 
+/* 스캔라인 */
 #reelScanline{
-  position:absolute;
-  inset:0;
+  position:absolute; inset:0;
   background: repeating-linear-gradient(
     to bottom,
     rgba(255,255,255,.05) 0px,
@@ -325,7 +301,7 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
   pointer-events:none;
 }
 
-/* ✅ 하이라이트: 초록 -> 노랑 / 굵기 4배 */
+/* ✅ 노란 하이라이트(굵게) */
 #reelHighlight{
   position:absolute;
   left:14px; right:14px;
@@ -334,16 +310,15 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
   height:66px;
   border-radius: 18px;
   box-shadow:
-    inset 0 0 0 8px rgba(255,214,10,.92), /* 굵기 4배 느낌 */
+    inset 0 0 0 8px rgba(255,214,10,.92),
     0 0 28px rgba(255,214,10,.30);
-  background:
-    linear-gradient(to bottom, rgba(255,214,10,.10), rgba(0,0,0,0));
+  background: linear-gradient(to bottom, rgba(255,214,10,.10), rgba(0,0,0,0));
   pointer-events:none;
 }
 
 #reelClip{
   position:absolute;
-  inset:14px;
+  inset:14px;              /* ✅ 이 값이 계산에 들어감 */
   border-radius: 18px;
   overflow:hidden;
 }
@@ -355,7 +330,7 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
 }
 
 .reelItem{
-  height:66px; /* JS ITEM_H와 동일 */
+  height:66px;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -368,14 +343,15 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
   white-space:nowrap;
   padding:0 14px;
   box-sizing:border-box;
+  line-height:1;           /* ✅ 박스 중앙 정렬 안정 */
 }
 
-/* 당첨 배너(1분 유지) */
+/* 당첨 배너 (✅ 중앙 정렬 유지) */
 #winBanner{
   position:absolute;
   left:50%;
   top:calc(56% + 136px);
-  transform:translateX(-56%);
+  transform:translateX(-50%);
   width:380px;
   min-height:60px;
   padding:12px 14px;
@@ -430,13 +406,12 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
 .lightDot:nth-child(6){ animation-delay:1.0s; }
 .lightDot:nth-child(7){ animation-delay:1.2s; }
 .lightDot:nth-child(8){ animation-delay:1.4s; }
-
 @keyframes blink{
   0%,100%{ filter:brightness(1); opacity:.82; }
   50%{ filter:brightness(1.55); opacity:1; }
 }
 
-/* 레버(스무스) */
+/* 레버 */
 #leverAssembly{
   position:absolute;
   right:44px;
@@ -461,7 +436,6 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
     inset 0 0 0 2px rgba(255,255,255,.10),
     inset 0 0 0 10px rgba(0,0,0,.20);
 }
-
 #leverRod{
   position:absolute;
   left:50%;
@@ -514,7 +488,7 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
 /* 폭죽 */
 .fireworks{
   position:absolute;
-  top:54%;
+  top:50%;
   transform:translateY(-50%);
   width:280px;
   height:280px;
@@ -551,7 +525,7 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
 
 <body>
 <div id="widget">
-
+  <!-- 왼쪽 THIS + MENTAL -->
   <div id="leftWrap">
     <img id="leftImg" src="./THIS.png" alt="THIS"/>
     <div id="mentalWrap">
@@ -560,9 +534,12 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
     </div>
   </div>
 
+  <!-- 중앙 OW 게이지 -->
   <img id="center" src="./ow_thick_000.png" alt="Gauge"/>
+  <!-- On.gif -->
   <img id="ultOn" src="./On.gif" alt="On"/>
 
+  <!-- 🎰 레버 오버레이 -->
   <div id="rouletteOverlay" class="bg">
     <div id="rouletteWrap">
       <div id="rouletteGlow"></div>
@@ -607,17 +584,13 @@ html,body{ margin:0; padding:0; background:transparent; overflow:hidden; }
 
           <div id="leverAssembly">
             <div id="leverTrack"></div>
-            <div id="leverRod">
-              <div id="leverKnob"></div>
-            </div>
+            <div id="leverRod"><div id="leverKnob"></div></div>
           </div>
         </div>
-
       </div>
 
     </div>
   </div>
-
 </div>
 
 <script>
@@ -636,7 +609,7 @@ function chooseDivaVoice(){
     null;
   return v || null;
 }
-function ensureVoiceReady(){
+(function ensureVoiceReady(){
   try{
     if (!("speechSynthesis" in window)) return;
     const tryPick = () => { divaVoice = chooseDivaVoice(); };
@@ -645,8 +618,7 @@ function ensureVoiceReady(){
       window.speechSynthesis.onvoiceschanged = () => { divaVoice = chooseDivaVoice(); };
     }
   }catch(e){}
-}
-ensureVoiceReady();
+})();
 function speakDiva(text){
   try{
     if (!("speechSynthesis" in window)) return;
@@ -739,10 +711,7 @@ const ultOnImg  = document.getElementById("ultOn");
 const pad3  = (n) => String(n).padStart(3,"0");
 const owPath = (n) => `./ow_thick_${pad3(n)}.png`;
 
-for (let i=0;i<=100;i++){
-  const im = new Image();
-  im.src = owPath(i);
-}
+for (let i=0;i<=100;i++){ const im = new Image(); im.src = owPath(i); }
 
 let owValue = 0;
 let chargingTimer = null;
@@ -764,7 +733,6 @@ function clearOWTimers(){
   if (holdTimer){ clearTimeout(holdTimer); holdTimer = null; }
   if (onTimer){ clearTimeout(onTimer); onTimer = null; }
 }
-
 function startOWLoop(){
   clearOWTimers();
   owValue = 0;
@@ -782,11 +750,11 @@ function startOWLoop(){
       holdTimer = setTimeout(() => {
         centerImg.style.visibility = "hidden";
         showOn();
-        startRouletteSpin();
+        startSlot();
 
         onTimer = setTimeout(() => {
           hideOn();
-          stopRouletteIfRunning();
+          stopSlotIfRunning();
           centerImg.style.visibility = "visible";
           startOWLoop();
         }, ON_DURATION_MS);
@@ -798,7 +766,7 @@ function startOWLoop(){
 startOWLoop();
 
 /* =========================================================
-   MENTAL 게이지
+   MENTAL
 ========================================================= */
 const MENTAL_TOTAL = 20;
 const MENTAL_INTERVAL_MS = 10 * 60 * 1000;
@@ -836,9 +804,12 @@ renderMental();
 setInterval(tickMental, MENTAL_INTERVAL_MS);
 
 /* =========================================================
-   🎰 슬롯: "처음부터 끝까지 부드럽게" + 막판 두근두근 감속
-   - requestAnimationFrame 기반 연속 스크롤(끊김 없음)
-   - 속도 프로필: 느림 → 중간(0.5초/개) → 매우 천천히 멈춤
+   🎰 슬롯: ✅ “정상 스무스 → 중간 일정 → 막판 두근두근 감속”
+   핵심 수정:
+   1) 당첨 텍스트가 노란 박스 중앙에 ‘정확히’ 들어가도록
+      -> offset을 ‘릴 클립 중앙(74px)’ 기준으로 수학적으로 맞춤
+   2) 막판에 “이상하게 돌아감” 방지
+      -> 마지막 구간에서 목표 위치로 ‘부드럽게 보정’(점프 없음)
 ========================================================= */
 const rouletteItems = [
   "골반댄스",
@@ -850,7 +821,6 @@ const rouletteItems = [
 ];
 
 const rouletteOverlay = document.getElementById("rouletteOverlay");
-const rouletteWrap = document.getElementById("rouletteWrap");
 const leverRod = document.getElementById("leverRod");
 const reelInner = document.getElementById("reelInner");
 const winBanner = document.getElementById("winBanner");
@@ -861,19 +831,27 @@ const fwRight = document.getElementById("fwRight");
 const WAIT_BEFORE_PULL_MS = 10_000;
 const LEVER_PULL_MS = 1_000;
 
-const ITEM_H = 66; // CSS .reelItem height
+const ITEM_H = 66;                 // .reelItem height
 let cycleH = rouletteItems.length * ITEM_H;
+
+/* ✅ 릴 클립 높이: reelWindow(176) - inset(14*2) = 148
+   -> 중앙 = 74px
+   -> item center = idx*ITEM_H + ITEM_H/2
+   -> offset = clipCenter - itemCenter
+*/
+const CLIP_H = 176 - 28;           // 148
+const CLIP_CENTER = CLIP_H / 2;    // 74
 
 const WIN_SHOW_MS = 60_000;
 const FADE_AFTER_WIN_MS = 1_200;
 
 let startDelayTimer=null, leverReturnTimer=null, winFadeTimer=null, winHideTimer=null;
-let reelRAF=null, reelRunning=false;
+let reelRAF=null, slotRunning=false;
 
 let currentOffset = 0;
 
 function buildReel(){
-  const repeats = 30;
+  const repeats = 34;
   const all = [];
   for (let r=0;r<repeats;r++){
     for (let i=0;i<rouletteItems.length;i++) all.push(rouletteItems[i]);
@@ -885,46 +863,120 @@ function buildReel(){
 }
 buildReel();
 
-function pickWinner(){
-  return Math.floor(Math.random() * rouletteItems.length);
-}
-function easeInOutCubic(x){
-  return x < 0.5 ? 4*x*x*x : 1 - Math.pow(-2*x + 2, 3)/2;
-}
-function easeOutCubic(x){ return 1 - Math.pow(1-x, 3); }
+function pickWinner(){ return Math.floor(Math.random() * rouletteItems.length); }
 function clamp01(x){ return Math.max(0, Math.min(1, x)); }
+function easeInOutCubic(x){ return x < 0.5 ? 4*x*x*x : 1 - Math.pow(-2*x + 2, 3)/2; }
+function easeOutCubic(x){ return 1 - Math.pow(1-x, 3); }
+function smoothstep(x){ x = clamp01(x); return x*x*(3-2*x); }
 
-/* 현재 offset에서 winner를 중앙에 맞추는 목표 offset */
-function computeWinnerOffsetAfterTurns(currentOff, winnerIndex, extraTurns=6){
-  const centerY = 52; // 중앙 감각 보정
-  const targetInCycle = winnerIndex * ITEM_H;
-  let desiredBase = - (targetInCycle - centerY);
+/* ✅ 당첨 정렬: “노란 박스(중앙)”에 winner가 딱 들어가는 오프셋 */
+function winnerAlignedOffset(idx){
+  const itemCenter = idx * ITEM_H + (ITEM_H/2);
+  return CLIP_CENTER - itemCenter;
+}
+function normalizeMod(n, m){ return ((n % m) + m) % m; }
 
-  // desiredBase와 같은 모듈 클래스 중, currentOff보다 충분히 더 "작은" 값(더 많이 내려감) 선택
-  while (desiredBase > currentOff - cycleH) desiredBase -= cycleH;
-  desiredBase -= cycleH * extraTurns;
-  return desiredBase;
+/* 시작 offset 기준으로 “몇 바퀴 더 돌고” 목표 offset 만들기(연속성 유지) */
+function makeTargetOffset(startOffset, winnerIndex, extraTurns){
+  const base = winnerAlignedOffset(winnerIndex); // (모듈 기준)
+  // base와 같은 클래스(모듈) 중에서 startOffset보다 충분히 “더 내려간” 값 선택
+  // offset은 계속 감소(더 음수)하니까, base를 -cycleH로 계속 내리면 됨
+  let target = base;
+  while (target > startOffset - cycleH) target -= cycleH;
+  target -= cycleH * extraTurns;
+  return target;
 }
 
-/* 속도 프로필: px/sec 를 시간에 따라 변화
-   - 0~6s: 아주 천천히 가속 (약 60px/s -> 132px/s)
-   - 6~22s: 0.5초당 1개 = 66px / 0.5s = 132px/s (고정)
-   - 22~32s: 아주 천천히 감속 (132px/s -> 20px/s)
+/* 속도 프로필(px/sec)
+   - 0~6s: 아주 천천히 가속
+   - 6~18s: 0.5초당 1개(=132px/s) 근처
+   - 18~30s: 감속(두근두근)
 */
-const PH1=6_000, PH2=16_000, PH3=10_000;
+const PH1=6_000, PH2=12_000, PH3=12_000;
 const TOTAL = PH1 + PH2 + PH3;
 const MID_SPEED = ITEM_H / 0.5; // 132 px/s
+
 function speedProfilePxPerSec(t){
   if (t < PH1){
     const p = easeInOutCubic(t/PH1);
-    return 60 + (MID_SPEED - 60) * p;
+    return 55 + (MID_SPEED - 55) * p;
   }
   if (t < PH1 + PH2){
     return MID_SPEED;
   }
   const tt = t - (PH1 + PH2);
   const p = easeOutCubic(clamp01(tt/PH3));
-  return MID_SPEED + (20 - MID_SPEED) * p; // 132 -> 20
+  return MID_SPEED + (18 - MID_SPEED) * p; // 132 -> 18
+}
+
+/* baseDistance 총합(프레임마다 dt적분)으로 “자연 스핀” 만들고,
+   마지막 PH3에서 목표 offset으로 “부드럽게 보정”해서 정확히 딱 맞춤 */
+function startSmoothSlotSpin(winnerIndex){
+  if (reelRAF) cancelAnimationFrame(reelRAF);
+  slotRunning = true;
+
+  const startAt = performance.now();
+  let lastAt = startAt;
+
+  const startOffset = currentOffset;
+
+  // ✅ 목표 offset(정확히 중앙 맞춤). extraTurns는 취향
+  const targetOffset = makeTargetOffset(startOffset, winnerIndex, 8);
+
+  // TOTAL 동안 프로필대로 갔을 때의 “baseEnd”를 예측하기 위해 수치적분(한 번)
+  function estimateTotalBaseDistance(stepMs=16){
+    let dist = 0;
+    for (let t=0; t<TOTAL; t+=stepMs){
+      dist += speedProfilePxPerSec(t) * (stepMs/1000);
+    }
+    return dist;
+  }
+  const totalBaseDist = estimateTotalBaseDistance();
+  const baseEnd = startOffset - totalBaseDist;
+
+  // baseEnd에서 targetOffset으로 맞추기 위한 보정량
+  const delta = targetOffset - baseEnd;
+
+  // 보정은 마지막 PH3 구간에서 0->delta로 부드럽게 적용
+  const phase3Start = PH1 + PH2;
+
+  let baseDist = 0;
+
+  function tick(now){
+    if (!slotRunning) return;
+
+    const elapsed = now - startAt;
+    const dt = (now - lastAt) / 1000;
+    lastAt = now;
+
+    // base 진행
+    const v = speedProfilePxPerSec(Math.min(elapsed, TOTAL));
+    baseDist += v * dt;
+
+    const baseOffset = startOffset - baseDist;
+
+    // 보정 진행(마지막 구간에서만 적용)
+    const p3 = (elapsed - phase3Start) / PH3;
+    const corr = delta * smoothstep(p3);
+
+    currentOffset = baseOffset + corr;
+    reelInner.style.transform = `translateY(${currentOffset}px)`;
+
+    if (elapsed >= TOTAL){
+      // 안전하게 마지막 1프레임은 targetOffset로 고정(시각적으로 튐 없음)
+      currentOffset = targetOffset;
+      reelInner.style.transform = `translateY(${currentOffset}px)`;
+
+      slotRunning = false;
+      reelRAF = null;
+      onWin(winnerIndex);
+      return;
+    }
+
+    reelRAF = requestAnimationFrame(tick);
+  }
+
+  reelRAF = requestAnimationFrame(tick);
 }
 
 function spawnFireworks(container){
@@ -983,80 +1035,15 @@ function onWin(winnerIndex){
   }, WIN_SHOW_MS + FADE_AFTER_WIN_MS);
 }
 
-/* ✅ 연속 스크롤(끊김 X) + 마지막 정확히 당첨에 스냅 */
-function startSmoothReelSpin(winnerIndex){
-  if (reelRAF) cancelAnimationFrame(reelRAF);
-
-  reelRunning = true;
-  const startAt = performance.now();
-  let lastAt = startAt;
-
-  // 목표는 마지막에 계산해서(현재 위치 기준) 자연스럽게 맞추기
-  const finalSnapMs = 1400; // 마지막 두근두근 스냅 구간
-  const snapStartAt = startAt + (TOTAL - finalSnapMs);
-
-  // 스냅용 값
-  let snapFrom = null;
-  let snapTo = null;
-
-  function tick(now){
-    if (!reelRunning) return;
-
-    const elapsed = now - startAt;
-    const dt = (now - lastAt) / 1000;
-    lastAt = now;
-
-    if (elapsed < TOTAL){
-      // 스냅 시작 전까지는 프로필 속도로 부드럽게 이동
-      if (now < snapStartAt){
-        const v = speedProfilePxPerSec(elapsed); // px/sec
-        currentOffset -= v * dt;
-        reelInner.style.transform = `translateY(${currentOffset}px)`;
-        reelRAF = requestAnimationFrame(tick);
-        return;
-      }
-
-      // 스냅 시작 시점: 목표 offset 계산
-      if (snapTo === null){
-        snapFrom = currentOffset;
-        snapTo = computeWinnerOffsetAfterTurns(currentOffset, winnerIndex, 3);
-      }
-
-      // 스냅 구간: 아주 천천히 멈추는 느낌
-      const p = clamp01((now - snapStartAt) / finalSnapMs);
-      const e = easeOutCubic(p);
-      currentOffset = snapFrom + (snapTo - snapFrom) * e;
-      reelInner.style.transform = `translateY(${currentOffset}px)`;
-
-      if (p >= 1){
-        reelRunning = false;
-        reelRAF = null;
-        onWin(winnerIndex);
-        return;
-      }
-
-      reelRAF = requestAnimationFrame(tick);
-      return;
-    }
-
-    // 안전 종료
-    reelRunning = false;
-    reelRAF = null;
-    onWin(winnerIndex);
-  }
-
-  reelRAF = requestAnimationFrame(tick);
-}
-
-function startRouletteSpin(){
-  stopRouletteIfRunning();
+function startSlot(){
+  stopSlotIfRunning();
 
   rouletteOverlay.style.display = "block";
   rouletteOverlay.style.opacity = "1";
 
-  rouletteWrap.classList.remove("pop");
-  void rouletteWrap.offsetWidth;
-  rouletteWrap.classList.add("pop");
+  document.getElementById("rouletteWrap").classList.remove("pop");
+  void document.getElementById("rouletteWrap").offsetWidth;
+  document.getElementById("rouletteWrap").classList.add("pop");
 
   leverRod.classList.remove("pullDown","returnUp");
   winBanner.style.display = "none";
@@ -1070,8 +1057,8 @@ function startRouletteSpin(){
     leverRod.classList.add("pullDown");
     leverClickPattern();
 
-    // ✅ 부드럽게 계속 내려가다가 막판에 두근두근 느려짐
-    startSmoothReelSpin(winnerIndex);
+    // ✅ 이제 “끝까지” 스무스 + 막판 두근두근 감속 + 노란박스 정렬
+    startSmoothSlotSpin(winnerIndex);
 
     leverReturnTimer = setTimeout(() => {
       leverRod.classList.remove("pullDown");
@@ -1082,14 +1069,14 @@ function startRouletteSpin(){
   }, WAIT_BEFORE_PULL_MS);
 }
 
-function stopRouletteIfRunning(){
+function stopSlotIfRunning(){
   if (startDelayTimer){ clearTimeout(startDelayTimer); startDelayTimer=null; }
   if (leverReturnTimer){ clearTimeout(leverReturnTimer); leverReturnTimer=null; }
   if (winFadeTimer){ clearTimeout(winFadeTimer); winFadeTimer=null; }
   if (winHideTimer){ clearTimeout(winHideTimer); winHideTimer=null; }
 
   if (reelRAF){ cancelAnimationFrame(reelRAF); reelRAF=null; }
-  reelRunning=false;
+  slotRunning=false;
 
   fwLeft.style.display="none"; fwLeft.innerHTML="";
   fwRight.style.display="none"; fwRight.innerHTML="";
@@ -1105,4 +1092,3 @@ function stopRouletteIfRunning(){
 </script>
 </body>
 </html>
-
